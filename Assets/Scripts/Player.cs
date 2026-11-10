@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
@@ -32,6 +31,9 @@ public class Player : MonoBehaviour
     public float staminaDrainPerSecond = 6f;
     public float healthDecayPerSecond = 0.5f;
 
+    [Header("Water")]
+    public float waterUsePerSecond = 6f; // Água gasta por segundo ao regar
+
     [Header("Regen Stats")]
     public float staminaRegenPerSecond = 3f;
     public float healthRegenPerSecond = 1f;
@@ -51,7 +53,6 @@ public class Player : MonoBehaviour
     public Vector3 spawnPoint; // Ponto de renascimento
     private PlayerAnim playerAnim;
     private Animator anim;
-    private Casting cast;
 
 
     private float initialSpeed; // Armazena a velocidade padrão
@@ -90,7 +91,6 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        cast = FindObjectOfType<Casting>();
         currentHealthPlayer = totalHealthPlayer;
         rig = GetComponent<Rigidbody2D>(); // Acessa o Rigidbody do jogador
         playerItems = GetComponent<PlayerItems>(); // Acessa o script de itens
@@ -154,7 +154,6 @@ public class Player : MonoBehaviour
             OnDig(); // Cavar
             OnWatering(); // Regar
             OnAttacking();
-            // OnCasting();
 
             HandleHunger();
             HandleStamina();
@@ -182,15 +181,6 @@ public class Player : MonoBehaviour
                 speed = initialSpeed;
 
             }
-
-            if (Input.GetKeyDown(KeyCode.P)) // Se pressionar 'P', muda de cena
-            {
-                SceneManager.LoadScene("SceneTeste");
-            }
-            //if (Input.GetKeyDown(KeyCode.O)) // Se pressionar 'P', muda de cena
-            //{
-            //    SceneManager.LoadScene("SampleScene");
-            //}
         }
     }
 
@@ -234,28 +224,6 @@ public class Player : MonoBehaviour
         {
             speed = initialSpeed; // Volta à velocidade normal
             _isRunning = false;
-        }
-    }
-
-     void OnCasting()
-    {
-        if (handlingObj == 4) // Se estiver com espada
-        {
-            if (cast.detectingPlayer && Input.GetMouseButtonDown(0)) // Se clicar botão esquerdo do mouse
-            {
-                speed = 0f; // Para de se mover
-                _isRunning = false; // Para de correr
-                _isCasting = true;
-            }
-            if (Input.GetMouseButtonUp(0))
-            {
-                speed = initialSpeed; // Volta a se mover
-                _isCasting = false;
-            }
-        }
-        else
-        {
-            isCasting = false;
         }
     }
 
@@ -348,16 +316,17 @@ public class Player : MonoBehaviour
             }
 
             // Se soltar o botão do mouse ou se acabar a água
-            if (Input.GetMouseButtonUp(0) || playerItems.currentWater < 0)
+            if (Input.GetMouseButtonUp(0) || (isWatering && playerItems.currentWater <= 0))
             {
                 isWatering = false; // Para de regar
                 speed = initialSpeed; // Volta à velocidade inicial
             }
 
-            // Se estiver regando(true), consome água
+            // Se estiver regando(true), consome água (por segundo, independente do FPS)
             if (isWatering)
             {
-                playerItems.currentWater -= 0.1f; // Diminui a água gradualmente
+                playerItems.currentWater -= waterUsePerSecond * Time.deltaTime;
+                playerItems.currentWater = Mathf.Max(playerItems.currentWater, 0f);
             }
         }
         else
@@ -380,17 +349,10 @@ public class Player : MonoBehaviour
         }
     }
 
-    void UseItem()
-    {
-        Comer(valueHungry);
-        Destroy(gameObject); // ou remover do inventário
-    }
-
     void HandleHunger()
     {
         if (isMoving)
         {
-            Debug.Log("Ficano cum fome");
             currentHunger -= hungerDrainPerSecond * Time.deltaTime;
             currentHunger = Mathf.Clamp(currentHunger, 0, maxHunger);
         }

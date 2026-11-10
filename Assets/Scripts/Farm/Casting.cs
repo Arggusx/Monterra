@@ -19,14 +19,15 @@ public class Casting : MonoBehaviour
     {
         playerItems = FindObjectOfType<PlayerItems>(); // Encontra o objeto com o script PlayerItems na cena
         playerAnim = playerItems.GetComponent<PlayerAnim>();
+        player = playerItems.GetComponent<Player>();
     }
 
     // Update é chamado a cada frame
     void Update()
     {
-        if (detectingPlayer && Input.GetMouseButtonDown(0)) // Se o jogador estiver na área e apertar E
+        // Se o jogador estiver na área, com a vara de pesca (handlingObj 4) e clicar com o botão esquerdo
+        if (detectingPlayer && !player.isPaused && player.handlingObj == 4 && Input.GetMouseButtonDown(0))
         {
-            player.OnCasting();
             playerAnim.OnCastingStarded();
         }
     }

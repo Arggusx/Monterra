@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
+#if UNITY_EDITOR
+using UnityEditor; // Só existe no editor: fora do #if quebra o build do jogo
+#endif
 
 // Para aparecer na janela 'Peoject' na Unity
 [CreateAssetMenu(fileName = "New Dialogue", menuName = "New Dialogue/Dialogue")]
