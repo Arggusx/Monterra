@@ -47,11 +47,6 @@ public class DialogueControl : MonoBehaviour
         player = FindObjectOfType<Player>();
     }
 
-    void Update()
-    {
-
-    }
-
     IEnumerator TypeSentence() // Coroutine que escreve uma frase letra por letra, com um intervalo entre cada letra
     {
         foreach (char letter in sentences[index].ToCharArray()) // Para cada caractere (letter) da frase atual (convertemos a string em array de caracteres)

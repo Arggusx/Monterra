@@ -26,8 +26,11 @@ public class Wood : MonoBehaviour
     {
         if (collision.CompareTag("Player")) // Se colidiu com o jogador
         {
+            PlayerItems items = collision.GetComponent<PlayerItems>();
+            if (items.totalWood >= items.woodLimit) return; // Inventário cheio: a madeira fica no chão
+
             // Aumenta a quantidade de madeira do jogador
-            collision.GetComponent<PlayerItems>().totalWood++;
+            items.totalWood++;
 
             // Destroi esse objeto de madeira
             Destroy(gameObject);

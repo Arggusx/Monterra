@@ -8,10 +8,13 @@ public class Fish : MonoBehaviour
     {
         if (collision.CompareTag("Player")) // Se colidiu com o jogador
         {
-            // Aumenta a quantidade de madeira do jogador
-            collision.GetComponent<PlayerItems>().fishes++;
+            PlayerItems items = collision.GetComponent<PlayerItems>();
+            if (items.fishes >= items.fishesLimit) return; // Inventário cheio: o peixe fica no chão
 
-            // Destroi esse objeto de madeira
+            // Aumenta a quantidade de peixes do jogador
+            items.fishes++;
+
+            // Destroi esse objeto de peixe
             Destroy(gameObject);
         }
     }

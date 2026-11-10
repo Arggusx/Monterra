@@ -1,8 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Dynamic;
-using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class PlayerAnim : MonoBehaviour
@@ -177,6 +174,9 @@ public class PlayerAnim : MonoBehaviour
 
     public void OnHit()
     {
+        if (isHitting || player.isDead) return; // Invencível durante o tempo de recuperação
+
+        isHitting = true;
         anim.SetTrigger("hit"); //Animação de hit
         player.currentHealthPlayer -= 3; // Aplica dano ao player
 
@@ -215,6 +215,8 @@ public class PlayerAnim : MonoBehaviour
         player.healthBarPlayer.fillAmount = 1f;
         player.isDead = false;
         player.isSpeed = player.isInicialSpeed;
+        isHitting = false;
+        timeCount = 0f;
 
         // Reinicia os triggers e define idle
         anim.ResetTrigger("death");

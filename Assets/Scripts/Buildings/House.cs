@@ -23,6 +23,7 @@ public class House : MonoBehaviour
     private bool detectingPlayer;
     private float timeCount;
     private bool isBegining;
+    private bool isBuilt;
 
     void Start()
     {
@@ -35,9 +36,10 @@ public class House : MonoBehaviour
     {
         // Inicializa a construção se: detectar player na área de colisão e apertar tecla 'E' e a 
         // quantidade de madeira que coletei for maior ou igual a quantidade setada
-        if (detectingPlayer && Input.GetKeyDown(KeyCode.E) && playerItems.totalWood >= woodAmount)
+        if (!isBuilt && !isBegining && detectingPlayer && Input.GetKeyDown(KeyCode.E) && playerItems.totalWood >= woodAmount)
         {
             isBegining = true;
+            timeCount = 0f;
             playerAnim.OnHammeringStarted(); // Começa a animação de martelar
             houseSprite.color = startColor;
             player.transform.position = point.position; // Move o player para um objeto vazio transparente
@@ -55,6 +57,8 @@ public class House : MonoBehaviour
                 houseSprite.color = endColor; // Seta a cor final (sem opacidade)
                 player.isPaused = false; // Player pode se mover
                 houseCollider.SetActive(true); // Ativar o colisor ao terminar de construir
+                isBegining = false; // Termina a construção (senão despausaria o player todo frame)
+                isBuilt = true; // Não pode construir de novo nem gastar madeira outra vez
             }
         }
     }

@@ -19,6 +19,7 @@ public class SlotFarm : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private int digAmount; // Quantidade de vezes que precisa cavar
     [SerializeField] private float waterAmount; // Quantidade de água necessária para crescer
+    [SerializeField] private float waterPerSecond = 6f; // Água recebida por segundo enquanto é regado
     [SerializeField] private bool detecting; // Se está sendo regado (detecção de água)
 
     private int inicialDigAmount; // Armazena a quantidade inicial para referência
@@ -42,7 +43,7 @@ public class SlotFarm : MonoBehaviour
         {
             if (detecting) // Se estiver sendo regado
             {
-                currentWater += 0.1f; // Acumula água aos poucos
+                currentWater += waterPerSecond * Time.deltaTime; // Acumula água aos poucos (independente do FPS)
             }
 
             if (currentWater >= waterAmount && !plantedCarrot) // Se acumulou água suficiente
@@ -52,9 +53,10 @@ public class SlotFarm : MonoBehaviour
 
                 plantedCarrot = true;
             }
-            if (Input.GetKeyDown(KeyCode.E) && plantedCarrot && isPlayer) // Se o jogador apertar E
+            // Se o jogador apertar E e ainda couber cenoura no inventário
+            if (Input.GetKeyDown(KeyCode.E) && plantedCarrot && isPlayer && playerItems.carrots < playerItems.carrotLimit)
             {
-                plantedCarrot = true;
+                plantedCarrot = false; // Colheu: precisa regar de novo para crescer outra
                 audioSource.PlayOneShot(carrotSFX);
                 spriteRenderer.sprite = hole; // Volta para o sprite de buraco
                 playerItems.carrots++; // Dá uma cenoura ao jogador
@@ -65,6 +67,8 @@ public class SlotFarm : MonoBehaviour
 
     public void OnHit() // Função chamada quando o jogador cava
     {
+        if (dugHole) return; // Buraco já cavado: cavar de novo apagaria a cenoura plantada
+
         digAmount--; // Diminui a resistência da terra
 
         if (digAmount <= inicialDigAmount / 2) // Quando cavou metade ou mais
