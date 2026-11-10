@@ -5,37 +5,46 @@ Um jogo autoral inspirado no clássico Stardew Valley, totalmente em **pixel art
 ## Principais Funcionalidades
 
 - **Pesca**  
-  Capture peixes em lagos.
+  Com a vara de pesca, pesque na parte superior do lago. Cada lançamento tem chance de render um peixe.
 
 - **Plantação**  
-  Cultive e colha itens essenciais para criar itens e desenvolver sua base.
+  Cave a terra com a pá, regue com o balde e colha cenouras quando crescerem.
 
-- **Crafting**  
-  Crie ferramentas, itens especiais, comidas e até equipamentos para sua jornada.
+- **Coleta de recursos**  
+  Corte árvores com o machado para obter madeira e encha o balde na parte inferior do lago.
 
-- **Combates**  
-  Sistema de batalhas entre criaturas com animações em pixel art, efeitos e estratégia.
+- **Combate**  
+  Enfrente esqueletos que perseguem o jogador, com animações de ataque, dano, morte e renascimento.
 
 - **Construção**  
-  Monte sua própria base, com liberdade criativa para expandir e proteger seu espaço no mundo do jogo.
+  Junte madeira suficiente (6) para construir uma casa em um local pré-definido do mapa.
+
+- **Sobrevivência e progressão**  
+  Barras de vida, fome e stamina, além de XP e níveis ganhos ao derrotar inimigos.
+
+- **Diálogos com NPCs**  
+  Sistema de diálogos com suporte a português, inglês e espanhol.
 
 ## Tecnologias e Estilo
 
-- Feito totalmente na **Unity Engine** 
-- Gráficos 100% originais em **Pixel Art**
-- Gameplay fluido com foco em **exploração e interação com o ambiente**
-- Sistema inspirado em **RPGs clássicos**, com mecânicas integradas e modernas
+- Feito na **Unity Engine** (versão 2020.1.3f1)
+- Gráficos em **Pixel Art** usando o pacote de assets **Sunnyside World**, de terceiros (créditos aos autores do pacote)
+- Navegação dos inimigos com **NavMeshPlus**
+- Gameplay com foco em **exploração e interação com o ambiente**, inspirado em RPGs clássicos
 
-  ## Controles
+## Controles
 
-  - Botão E: Pesca na parte superior do lago, coleta de cenouras quando crescidas, contruir casas com a quantidade limite de madeira (6), e coletar água na parte inferior do lago.
-  - Botão F: Se alimenta com peixes, se tiver pelo menos um no inventário.
-  - Botão Q: Para selecionar o machado.
-  - Botão R: Para selecionar a pá.
-  - Botão X: Para selecionar o balde de água.
-  - Botão Z: Para selecionar a espada.
-  - LeftShift: Aciona o Correr.
-  - LeftButtomMouse: Realizar ações. 
+- **W, A, S, D / setas**: Movimentação.
+- **Left Shift**: Correr (gasta stamina).
+- **Botão direito do mouse**: Rolar.
+- **Q**: Selecionar o machado.
+- **R**: Selecionar a pá.
+- **X**: Selecionar o balde de água.
+- **Z**: Selecionar a espada.
+- **C**: Selecionar a vara de pesca.
+- **Botão esquerdo do mouse**: Usar a ferramenta selecionada (cortar, cavar, regar, atacar ou pescar perto do lago).
+- **E**: Interagir — conversar com NPCs, encher o balde na parte inferior do lago, colher cenouras crescidas e construir a casa (com 6 de madeira).
+- **F**: Comer um peixe, se tiver pelo menos um no inventário.
 
 ---
 
