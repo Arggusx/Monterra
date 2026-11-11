@@ -126,7 +126,7 @@ namespace UnityEditor.AI
             EditorGUILayout.HelpBox("This component will be removed in future releases, use NavMeshExtensions instead.", MessageType.Warning);
 
             if ((CollectObjects)m_CollectObjects.enumValueIndex != CollectObjects.Children
-                && GameObject.FindObjectOfType<Grid>() == null)
+                && GameObject.FindAnyObjectByType<Grid>() == null)
             {
                 EditorGUILayout.HelpBox($"{CollectObjects.All} or {CollectObjects.Volume} is not intended to be used without root Grid object in scene. Use {CollectObjects.Children} instead.", MessageType.Warning);
             }
