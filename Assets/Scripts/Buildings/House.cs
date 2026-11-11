@@ -34,9 +34,9 @@ public class House : MonoBehaviour
 
     void Update()
     {
-        // Inicializa a construção se: detectar player na área de colisão e apertar tecla 'E' e a 
+        // Inicializa a construção se: detectar player na área de colisão e apertar tecla 'E' e a
         // quantidade de madeira que coletei for maior ou igual a quantidade setada
-        if (detectingPlayer && !isBegining && !isBuilt && Input.GetKeyDown(KeyCode.E) && playerItems.totalWood >= woodAmount)
+        if (detectingPlayer && !isBegining && !isBuilt && GameInput.InteractPressed && playerItems.totalWood >= woodAmount)
         {
             isBegining = true;
             timeCount = 0f;
@@ -49,7 +49,7 @@ public class House : MonoBehaviour
         }
         if (isBegining)
         {
-            timeCount += Time.deltaTime; // Conta o tempo em segundos desde o ultimo frame 
+            timeCount += Time.deltaTime; // Conta o tempo em segundos desde o ultimo frame
 
             if (timeCount >= timeAmount)
             {
@@ -62,6 +62,22 @@ public class House : MonoBehaviour
             }
         }
     }
+    public bool IsBuilt => isBuilt;
+
+    // Usado pelo salvamento: deixa a casa pronta sem animação nem gastar madeira
+    public void ApplyBuilt()
+    {
+        if (isBuilt)
+        {
+            return;
+        }
+
+        isBegining = false;
+        isBuilt = true;
+        houseSprite.color = endColor;
+        houseCollider.SetActive(true);
+    }
+
     void OnTriggerEnter2D(Collider2D collision) // Quando algo entra no gatilho
     {
         if (collision.CompareTag("Player")) // Se for o jogador

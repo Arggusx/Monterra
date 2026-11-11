@@ -26,7 +26,7 @@ public class Casting : MonoBehaviour
     void Update()
     {
         // Se o jogador estiver na área, apertar E e não estiver ocupado (pausado/morto)
-        if (detectingPlayer && Input.GetKeyDown(KeyCode.E) && !player.isPaused && !player.isDead)
+        if (detectingPlayer && GameInput.InteractPressed && !player.isPaused && !player.isDead)
         {
             playerAnim.OnCastingStarded();
         }

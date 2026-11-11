@@ -32,6 +32,7 @@ public class DialogueControl : MonoBehaviour
     private Sprite[] actorSprite;
 
     private Player player;
+    private int closedFrame = -1; // Frame em que o diálogo fechou (evita reabrir com o mesmo aperto de E)
 
 
 
@@ -45,6 +46,15 @@ public class DialogueControl : MonoBehaviour
     void Start()
     {
         player = FindAnyObjectByType<Player>();
+    }
+
+    void Update()
+    {
+        // Avança o diálogo com E / botão A do controle (antes só dava clicando no botão da tela)
+        if (isShowing && GameInput.InteractPressed)
+        {
+            NextSentence();
+        }
     }
 
     IEnumerator TypeSentence() // Coroutine que escreve uma frase letra por letra, com um intervalo entre cada letra
@@ -81,6 +91,7 @@ public class DialogueControl : MonoBehaviour
                 dialogueObj.SetActive(false);
                 sentences = null;
                 isShowing = false;
+                closedFrame = Time.frameCount;
                 player.isPaused = false;
             }
         }
@@ -88,7 +99,7 @@ public class DialogueControl : MonoBehaviour
 
     public void Speech(string[] txt, string[] actorName, Sprite[] actorProfile) // Chama a fala do NPC
     {
-        if (!isShowing && txt != null && txt.Length > 0) // Para enquanto uma fala continuar, não executar o 'Speech' novamente
+        if (!isShowing && Time.frameCount != closedFrame && txt != null && txt.Length > 0) // Para enquanto uma fala continuar, não executar o 'Speech' novamente
         {
             index = 0;
             speechText.text = "";

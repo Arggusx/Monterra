@@ -44,6 +44,10 @@ public class Player : MonoBehaviour
 
     public float valueHungryPerFish = 5f;
     public float valueHungry = 10f;
+    public float valueHungryPerCarrot = 3f; // Quanto uma cenoura recupera de fome
+
+    [Header("Water")]
+    public float waterUsePerSecond = 6f; // Água gasta por segundo ao regar (antes era 0.1 por frame = 6/s a 60 FPS)
 
     private Rigidbody2D rig; // Componente de física 2D
     private PlayerItems playerItems; // Script de itens do jogador
@@ -117,40 +121,21 @@ public class Player : MonoBehaviour
 
         if (!isPaused)
         {
-            // Troca o item nas mãos com base na tecla pressionada
-            if (Input.GetKeyDown(KeyCode.Q))
+            // Troca o item nas mãos (Q R X Z C, teclas 1-5 ou LB/RB no controle)
+            int tool = GameInput.ToolSelected(handlingObj);
+            if (tool >= 0)
             {
-                handlingObj = 0; // Ferramenta de corte
-                Debug.Log("Pegou o machado");
+                handlingObj = tool; // 0 machado, 1 pá, 2 balde, 3 espada, 4 vara de pesca
             }
 
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                handlingObj = 1; // Pá para cavar
-                Debug.Log("Pegou a pá");
-            }
-
-            if (Input.GetKeyDown(KeyCode.X))
-            {
-                handlingObj = 2; // Regador
-                Debug.Log("Pegou o balde");
-            }
-
-            if (Input.GetKeyDown(KeyCode.Z))
-            {
-                handlingObj = 3; // Espada
-                Debug.Log("Pegou a espada");
-            }
-
-            if (Input.GetKeyDown(KeyCode.C))
-            {
-                handlingObj = 4; // Vara de pesca
-                Debug.Log("Pegou na vara");
-            }
-            
-            if (Input.GetKeyDown(KeyCode.F))
+            if (GameInput.EatFishPressed)
             {
                 foodFish();
+            }
+
+            if (GameInput.EatCarrotPressed)
+            {
+                foodCarrot();
             }
 
 
@@ -181,14 +166,10 @@ public class Player : MonoBehaviour
 
             UpdateSpeed(); // Define a velocidade final do frame com base no estado atual
 
-            if (Input.GetKeyDown(KeyCode.P)) // Se pressionar 'P', muda de cena
+            if (GameInput.DebugScenePressed) // Se pressionar 'P', muda de cena
             {
                 SceneManager.LoadScene("SceneTeste");
             }
-            //if (Input.GetKeyDown(KeyCode.O)) // Se pressionar 'P', muda de cena
-            //{
-            //    SceneManager.LoadScene("SampleScene");
-            //}
         }
         else
         {
@@ -211,7 +192,7 @@ public class Player : MonoBehaviour
 
     void OnInput()
     {
-        _direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")); // Direção com base nas teclas WASD ou setas
+        _direction = GameInput.Move; // WASD, setas, analógico ou D-pad
     }
 
     void OnMove()
@@ -221,7 +202,7 @@ public class Player : MonoBehaviour
 
     void OnRun()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift)) // Ao pressionar Shift
+        if (GameInput.RunPressed) // Ao começar a correr
         {
             _isCutting = false; // Para de cortar se estiver correndo
             _isAttacking = false;
@@ -233,7 +214,7 @@ public class Player : MonoBehaviour
     void UpdateSpeed()
     {
         bool isBusy = _isCutting || _isDigging || _isWatering || _isAttacking || _isCasting;
-        bool wantsToRun = Input.GetKey(KeyCode.LeftShift);
+        bool wantsToRun = GameInput.RunHeld;
 
         _isRunning = wantsToRun && isMoving && !isBusy && currentStamina > 0f;
 
@@ -255,13 +236,13 @@ public class Player : MonoBehaviour
     {
         if (handlingObj == 4) // Se estiver com espada
         {
-            if (cast.detectingPlayer && Input.GetMouseButtonDown(0)) // Se clicar botão esquerdo do mouse
+            if (cast.detectingPlayer && GameInput.ActionPressed) // Se usar a ferramenta
             {
                 speed = 0f; // Para de se mover
                 _isRunning = false; // Para de correr
                 _isCasting = true;
             }
-            if (Input.GetMouseButtonUp(0))
+            if (GameInput.ActionReleased)
             {
                 speed = initialSpeed; // Volta a se mover
                 _isCasting = false;
@@ -277,13 +258,13 @@ public class Player : MonoBehaviour
     {
         if (handlingObj == 3) // Se estiver com espada
         {
-            if (Input.GetMouseButtonDown(0)) // Se clicar botão esquerdo do mouse
+            if (GameInput.ActionPressed) // Se usar a ferramenta
             {
                 speed = 0f; // Para de se mover
                 _isRunning = false; // Para de correr
                 _isAttacking = true;
             }
-            if (Input.GetMouseButtonUp(0))
+            if (GameInput.ActionReleased)
             {
                 speed = initialSpeed; // Volta a se mover
                 _isAttacking = false;
@@ -298,13 +279,13 @@ public class Player : MonoBehaviour
     {
         if (handlingObj == 0) // Se estiver com ferramenta de corte
         {
-            if (Input.GetMouseButtonDown(0)) // Se clicar botão esquerdo do mouse
+            if (GameInput.ActionPressed) // Se usar a ferramenta
             {
                 _isCutting = true;
                 speed = 0f; // Para de se mover
                 _isRunning = false; // Para de correr
             }
-            if (Input.GetMouseButtonUp(0))
+            if (GameInput.ActionReleased)
             {
                 _isCutting = false; // Não corta
                 speed = initialSpeed; // Volta a se mover
@@ -318,11 +299,11 @@ public class Player : MonoBehaviour
 
     void OnRolling()
     {
-        if (Input.GetMouseButtonDown(1)) // Se clicar direito do mouse para iniciar rolagem
+        if (GameInput.RollPressed) // Botão direito do mouse ou B no controle
         {
             isRolling = true; // Pode usar 'Rolar'
         }
-        if (Input.GetMouseButtonUp(1)) // Se soltar o botão direito do mouse para parar de rolar
+        if (GameInput.RollReleased) // Ao soltar, para de rolar
         {
             isRolling = false; // Não pode usar 'Rolar'
         }
@@ -333,12 +314,12 @@ public class Player : MonoBehaviour
     {
         if (handlingObj == 1) // Se estiver com a pá
         {
-            if (Input.GetMouseButtonDown(0)) // Se clicou botão esquedo do mouse
+            if (GameInput.ActionPressed) // Se usar a ferramenta
             {
                 isDigging = true; // Começa a cavar
                 speed = 0f; // Para de se mover
             }
-            if (Input.GetMouseButtonUp(0)) // Se soltou o botão esquerdo do mouse
+            if (GameInput.ActionReleased) // Se soltou o botão
             {
                 isDigging = false; // Para de cavar
                 speed = initialSpeed; // Volta a se mover
@@ -355,14 +336,14 @@ public class Player : MonoBehaviour
         if (handlingObj == 2) // Se o jogador estiver segurando o regador
         {
             // Se pressionar o botão esquerdo do mouse e ainda tiver água
-            if (Input.GetMouseButtonDown(0) && playerItems.currentWater > 0)
+            if (GameInput.ActionPressed && playerItems.currentWater > 0)
             {
                 isWatering = true; // Começa a regar
                 speed = 0f; // Para o movimento enquanto rega
             }
 
             // Se soltar o botão do mouse ou se acabar a água
-            if (Input.GetMouseButtonUp(0) || playerItems.currentWater <= 0)
+            if (GameInput.ActionReleased || playerItems.currentWater <= 0)
             {
                 isWatering = false; // Para de regar
                 speed = initialSpeed; // Volta à velocidade inicial
@@ -371,7 +352,8 @@ public class Player : MonoBehaviour
             // Se estiver regando(true), consome água
             if (isWatering)
             {
-                playerItems.currentWater = Mathf.Max(0f, playerItems.currentWater - 0.1f); // Diminui a água gradualmente, sem ficar negativa
+                // Diminui a água por segundo (independe do FPS), sem ficar negativa
+                playerItems.currentWater = Mathf.Max(0f, playerItems.currentWater - waterUsePerSecond * Time.deltaTime);
             }
         }
         else
@@ -380,7 +362,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    void foodFish()
+    public void foodFish()
     {
         if (playerItems.fishes > 0 && currentHunger < maxHunger)
         {
@@ -391,6 +373,15 @@ public class Player : MonoBehaviour
         else
         {
             Debug.Log("Não pode comer peixe (sem peixe ou fome cheia).");
+        }
+    }
+
+    public void foodCarrot()
+    {
+        if (playerItems.carrots > 0 && currentHunger < maxHunger)
+        {
+            playerItems.carrots--;
+            Comer(valueHungryPerCarrot);
         }
     }
 
@@ -405,7 +396,7 @@ public class Player : MonoBehaviour
 
     void HandleStamina()
     {
-        bool wantsToRun = Input.GetKey(KeyCode.LeftShift);
+        bool wantsToRun = GameInput.RunHeld;
 
         if (isRunning && currentStamina > 0)
         {

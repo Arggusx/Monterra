@@ -11,6 +11,7 @@ public class PlayerItems : MonoBehaviour
     public int carrots; // Armazena a quantidade de cenouras coletada
     public float currentWater; // Armazena a quantidade atual de água coletada
     public int fishes; // Armazena a quantidade de peixes pescados
+    public int coins; // Moedas ganhas vendendo itens no inventário
 
     public int currentLevel = 0;
     public int currentXP;

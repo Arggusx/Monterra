@@ -18,7 +18,7 @@ public class Water : MonoBehaviour
     // Update é chamado a cada frame
     void Update()
     {
-        if (detectingPlayer && Input.GetKeyDown(KeyCode.E)) // Se o jogador estiver na área e apertar E
+        if (detectingPlayer && GameInput.InteractPressed) // Se o jogador estiver na área e apertar E
         {
             player.WaterLimit(waterValue); // Adiciona água ao inventário do jogador
         }

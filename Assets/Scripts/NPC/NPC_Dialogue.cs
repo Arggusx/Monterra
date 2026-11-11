@@ -25,7 +25,7 @@ public class NPC_Dialogue : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E) && playerHit)  // Verifica se o jogador apertou a tecla 'E' e está perto do NPC para iniciar o diálogo
+        if (GameInput.InteractPressed && playerHit)  // Verifica se o jogador apertou a tecla 'E' e está perto do NPC para iniciar o diálogo
         {
             // Chama o método que inicia o diálogo, passando as frases como array
             DialogueControl.instance.Speech(sentences.ToArray(), actorName.ToArray(), actorSprite.ToArray());

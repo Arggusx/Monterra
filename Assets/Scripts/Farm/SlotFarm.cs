@@ -2,6 +2,7 @@
 using System.Collections.Generic; // Suporte para listas e dicionários genéricos
 using UnityEngine; // Biblioteca principal da Unity
 
+// Canteiro de plantação: cavar -> regar -> esperar crescer (tempo do jogo) -> colher com E
 public class SlotFarm : MonoBehaviour
 {
     // Todos os atributos que tiver '[SerializeField]' ou 'public' é definido no inspector da Unity
@@ -20,49 +21,72 @@ public class SlotFarm : MonoBehaviour
     [SerializeField] private int digAmount; // Quantidade de vezes que precisa cavar
     [SerializeField] private float waterAmount; // Quantidade de água necessária para crescer
     [SerializeField] private bool detecting; // Se está sendo regado (detecção de água)
+    [Tooltip("Água acumulada por segundo enquanto é regado (antes era 0.1 por frame = 6/s a 60 FPS)")]
+    [SerializeField] private float waterPerSecond = 6f;
+    [Tooltip("Horas do jogo que a cenoura leva para crescer depois de regada")]
+    [SerializeField] private float growthHours = 2f;
 
     private int inicialDigAmount; // Armazena a quantidade inicial para referência
     private float currentWater; // Quantidade atual de água acumulada
+    private float growth; // Horas de crescimento já passadas
 
     PlayerItems playerItems; // Referência ao script de itens do jogador para armazenar quantidades em variáveis
 
     private bool dugHole; // Se o buraco já foi cavado
-    private bool plantedCarrot;
+    private bool plantedCarrot; // Cenoura pronta para colher
     private bool isPlayer; // É verdadeiro quando o player entra no colisor pré-setado
+
+    private static readonly Color growingTint = new Color(0.8f, 1f, 0.8f); // Leve verde enquanto cresce
+
+    private bool IsWatered => currentWater >= waterAmount;
+
+    private void Awake()
+    {
+        inicialDigAmount = digAmount; // Salva o valor inicial da terra (no Awake para o save poder sobrescrever)
+    }
 
     private void Start()
     {
         playerItems = FindAnyObjectByType<PlayerItems>(); // Encontra o script PlayerItems na cena
-        inicialDigAmount = digAmount; // Salva o valor inicial da terra para comparação depois
     }
 
     void Update()
     {
-        if (dugHole) // Se o buraco foi cavado
+        if (!dugHole) // Ainda não foi cavado
         {
-            if (detecting) // Se estiver sendo regado
-            {
-                currentWater += 0.1f; // Acumula água aos poucos
-            }
+            return;
+        }
 
-            if (currentWater >= waterAmount && !plantedCarrot) // Se acumulou água suficiente
+        if (detecting && !IsWatered) // Se estiver sendo regado
+        {
+            currentWater += waterPerSecond * Time.deltaTime; // Acumula água por segundo (independe do FPS)
+        }
+
+        if (IsWatered && !plantedCarrot) // Regado: cresce com o passar das horas do jogo
+        {
+            growth += DayNightCycle.GameHoursThisFrame;
+            spriteRenderer.color = growingTint;
+
+            if (growth >= growthHours)
             {
-                spriteRenderer.sprite = carrot; // Planta cenoura (muda sprite)
+                spriteRenderer.sprite = carrot; // Cenoura cresceu (muda sprite)
+                spriteRenderer.color = Color.white;
                 audioSource.PlayOneShot(holeSFX);
-
                 plantedCarrot = true;
             }
-            if (Input.GetKeyDown(KeyCode.E) && plantedCarrot && isPlayer) // Se o jogador apertar E
+        }
+
+        if (GameInput.InteractPressed && plantedCarrot && isPlayer) // Se o jogador apertar E
+        {
+            plantedCarrot = false; // Colheu: precisa regar de novo para crescer outra cenoura
+            audioSource.PlayOneShot(carrotSFX);
+            spriteRenderer.sprite = hole; // Volta para o sprite de buraco
+            if (playerItems.carrots < playerItems.carrotLimit)
             {
-                plantedCarrot = false; // Colheu: precisa regar de novo para crescer outra cenoura
-                audioSource.PlayOneShot(carrotSFX);
-                spriteRenderer.sprite = hole; // Volta para o sprite de buraco
-                if (playerItems.carrots < playerItems.carrotLimit)
-                {
-                    playerItems.carrots++; // Dá uma cenoura ao jogador (respeitando o limite)
-                }
-                currentWater = 0f; // Reseta a água para replantar
+                playerItems.carrots++; // Dá uma cenoura ao jogador (respeitando o limite)
             }
+            currentWater = 0f; // Reseta a água para replantar
+            growth = 0f;
         }
     }
 
@@ -72,10 +96,50 @@ public class SlotFarm : MonoBehaviour
 
         if (digAmount <= inicialDigAmount / 2) // Quando cavou metade ou mais
         {
-            spriteRenderer.sprite = hole; // Mostra o sprite de buraco
+            if (!dugHole)
+            {
+                spriteRenderer.sprite = hole; // Mostra o sprite de buraco
+            }
             dugHole = true; // Marca que já pode plantar
         }
     }
+
+    #region Salvar / Carregar
+
+    public FarmSlotData GetState(string id)
+    {
+        return new FarmSlotData
+        {
+            id = id,
+            digAmount = digAmount,
+            dugHole = dugHole,
+            currentWater = currentWater,
+            growth = growth,
+            plantedCarrot = plantedCarrot,
+        };
+    }
+
+    public void SetState(FarmSlotData data)
+    {
+        digAmount = data.digAmount;
+        dugHole = data.dugHole;
+        currentWater = data.currentWater;
+        growth = data.growth;
+        plantedCarrot = data.plantedCarrot;
+
+        if (plantedCarrot)
+        {
+            spriteRenderer.sprite = carrot;
+            spriteRenderer.color = Color.white;
+        }
+        else if (dugHole)
+        {
+            spriteRenderer.sprite = hole;
+            spriteRenderer.color = IsWatered ? growingTint : Color.white;
+        }
+    }
+
+    #endregion
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
