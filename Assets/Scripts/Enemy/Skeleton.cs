@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.PlayerLoop;
 using UnityEngine.UI;
 
 
@@ -38,7 +37,7 @@ public class Skeleton : MonoBehaviour
     void Start()
     {
         currentHealth = totalHealth;
-        player = FindObjectOfType<Player>();
+        player = FindAnyObjectByType<Player>();
         agent.updateRotation = false; // Não rotaciona o eixo Z
         agent.updateUpAxis = false;
     }
@@ -46,7 +45,7 @@ public class Skeleton : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!isDead && detectPlayer)
+        if (!isDead && detectPlayer && player != null && agent.isOnNavMesh)
         {
             agent.isStopped = false;
             agent.SetDestination(player.transform.position); // Inimigo anda em direção ao player
@@ -90,8 +89,16 @@ public class Skeleton : MonoBehaviour
         else
         {
             detectPlayer = false; // Não detectou
-            animControll.PlayAnim(0);
-            agent.isStopped = true;
+
+            if (!isDead) // Não sobrescreve a animação de morte
+            {
+                animControll.PlayAnim(0);
+            }
+
+            if (agent.isOnNavMesh)
+            {
+                agent.isStopped = true;
+            }
         }
 
     }

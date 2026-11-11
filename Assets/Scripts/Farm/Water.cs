@@ -12,7 +12,7 @@ public class Water : MonoBehaviour
     // Start é chamado antes do primeiro frame
     void Start()
     {
-        player = FindObjectOfType<PlayerItems>(); // Encontra o objeto com o script em PlayerItems na cena
+        player = FindAnyObjectByType<PlayerItems>(); // Encontra o objeto com o script em PlayerItems na cena
     }
 
     // Update é chamado a cada frame

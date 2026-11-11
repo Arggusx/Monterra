@@ -44,12 +44,7 @@ public class DialogueControl : MonoBehaviour
 
     void Start()
     {
-        player = FindObjectOfType<Player>();
-    }
-
-    void Update()
-    {
-
+        player = FindAnyObjectByType<Player>();
     }
 
     IEnumerator TypeSentence() // Coroutine que escreve uma frase letra por letra, com um intervalo entre cada letra
@@ -63,6 +58,11 @@ public class DialogueControl : MonoBehaviour
 
     public void NextSentence() // Pula para a próxima frase
     {
+        if (sentences == null)
+        {
+            return; // Nenhum diálogo aberto
+        }
+
         if (speechText.text == sentences[index]) // Se a frase apareceu por completo
         {
             if (index < sentences.Length - 1)
@@ -88,8 +88,10 @@ public class DialogueControl : MonoBehaviour
 
     public void Speech(string[] txt, string[] actorName, Sprite[] actorProfile) // Chama a fala do NPC
     {
-        if (!isShowing) // Para enquanto uma fala continuar, não executar o 'Speech' novamente
+        if (!isShowing && txt != null && txt.Length > 0) // Para enquanto uma fala continuar, não executar o 'Speech' novamente
         {
+            index = 0;
+            speechText.text = "";
             dialogueObj.SetActive(true);
             sentences = txt;
             StartCoroutine(TypeSentence());

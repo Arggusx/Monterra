@@ -62,3 +62,7 @@ local.properties
 *.log
 *.tmp
 *.bak
+
+# Unity 6
+*.slnx
+[Uu]ser[Ss]ettings/

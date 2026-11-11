@@ -26,13 +26,11 @@ public class PlayerItems : MonoBehaviour
 
     public void WaterLimit(float water) // Método para limitar a quantidade de água ao recarregar
     {
-        if (currentWater <= waterLimit) // Verifica se ainda pode adicionar água
-        {
-            currentWater += water; // Adiciona água ao total atual
-        }
+        // Adiciona água ao total atual, sem ultrapassar o limite
+        currentWater = Mathf.Clamp(currentWater + water, 0f, waterLimit);
     }
 
-    public void XpLimit(int xpValue) // Método para limitar a quantidade de água ao recarregar
+    public void XpLimit(int xpValue) // Adiciona XP e sobe de nível quando atinge o limite
     {
         currentXP += xpValue;
         Debug.Log("XP Gained: " + xpValue);

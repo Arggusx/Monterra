@@ -1,8 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Dynamic;
-using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class PlayerAnim : MonoBehaviour
@@ -17,26 +14,20 @@ public class PlayerAnim : MonoBehaviour
     private Quaternion lastRotation;
     private bool isDead;
     private bool isHitting;
-    private bool hasPlayedDeathAnim = false;
     private float timeCount;
     private float recoveryTime = 1.5f;
     private Player player; // Referência ao script Player
     private Animator anim; // Referência ao componente Animator
-    private bool isAttacking;
-
-    private Skeleton skeleton;
-
     private Casting cast;
 
     void Start()
     {
-        skeleton = GetComponentInParent<Skeleton>();
         player = GetComponent<Player>(); // Pega o componente Player
         anim = GetComponent<Animator>(); // Pega o componente Animator
         startPosition = transform.position;
         startRotation = transform.rotation;
 
-        cast = FindObjectOfType<Casting>();
+        cast = FindAnyObjectByType<Casting>();
     }
 
     void Update()
@@ -45,6 +36,13 @@ public class PlayerAnim : MonoBehaviour
         {
             transform.rotation = lastRotation; // ← Impede a rotação após a morte
             return; // Impede que OnMove/OnRun alterem a rotação
+        }
+
+        // Morte por fome (vida chegou a zero sem ser por ataque)
+        if (player.currentHealthPlayer <= 0)
+        {
+            Die();
+            return;
         }
 
         OnMove(); // Chama a função de movimentação
@@ -134,22 +132,24 @@ public class PlayerAnim : MonoBehaviour
 
         if (hit != null)
         {
-            hit.gameObject.GetComponentInChildren<AnimationControll>().OnHit(); // Pega elementos do objeto filho
-            Debug.Log("Atacou o inimigo");
+            AnimationControll enemy = hit.gameObject.GetComponentInChildren<AnimationControll>(); // Pega elementos do objeto filho
+            if (enemy != null)
+            {
+                enemy.OnHit();
+                Debug.Log("Atacou o inimigo");
+            }
         }
     }
 
     private void OnDrawGizmosSelected()
     {
-        Gizmos.DrawWireSphere(attackPoint.position, radius);
+        if (attackPoint != null)
+        {
+            Gizmos.DrawWireSphere(attackPoint.position, radius);
+        }
     }
 
     #endregion
-
-    public void OnCasting()
-    {
-        cast.OnCasting();
-    }
 
     // Quando o jogador clica no botão referente a pesca
     public void OnCastingStarded()
@@ -161,7 +161,10 @@ public class PlayerAnim : MonoBehaviour
     // Chamado quando a animação de pesca termina
     public void OnCastingEnded()
     {
-        cast.OnCasting();
+        if (cast != null)
+        {
+            cast.OnCasting();
+        }
         player.isPaused = false;
     }
 
@@ -177,18 +180,36 @@ public class PlayerAnim : MonoBehaviour
 
     public void OnHit()
     {
+        // Não toma dano se já estiver morto ou ainda no tempo de recuperação do último golpe
+        if (player.isDead || isHitting)
+        {
+            return;
+        }
+
+        isHitting = true; // Inicia o tempo de invencibilidade (recoveryTime)
+        timeCount = 0f;
+
         anim.SetTrigger("hit"); //Animação de hit
         player.currentHealthPlayer -= 3; // Aplica dano ao player
 
-        if (player.currentHealthPlayer <= 0 && !player.isDead)  // Se tiver com menos de 1 de vida (morto)
+        if (player.currentHealthPlayer <= 0)  // Se tiver com menos de 1 de vida (morto)
         {
-            anim.SetTrigger("death"); // Toca a animação de morte
-            player.isDead = true;
-            lastRotation = transform.rotation; // Não permite rotação
-            StartCoroutine(DieCoroutine()); // Aguarda a animação antes de desativar
+            Die();
+        }
+    }
 
+    private void Die()
+    {
+        if (player.isDead)
+        {
+            return;
         }
 
+        anim.SetTrigger("death"); // Toca a animação de morte
+        player.isDead = true;
+        player.isPaused = false; // Garante que não fique travado caso morra durante uma ação
+        lastRotation = transform.rotation; // Não permite rotação
+        StartCoroutine(DieCoroutine()); // Aguarda a animação antes de renascer
     }
 
     private IEnumerator DieCoroutine()
@@ -210,8 +231,12 @@ public class PlayerAnim : MonoBehaviour
         player.transform.position = startPosition;
         player.transform.rotation = startRotation;
 
-        // Restaura a vida
+        // Restaura a vida, a fome e a stamina (senão morreria de fome de novo logo ao renascer)
         player.currentHealthPlayer = player.totalHealthPlayer;
+        player.currentHunger = player.maxHunger;
+        player.currentStamina = player.maxStamina;
+        isHitting = false;
+        timeCount = 0f;
         player.healthBarPlayer.fillAmount = 1f;
         player.isDead = false;
         player.isSpeed = player.isInicialSpeed;

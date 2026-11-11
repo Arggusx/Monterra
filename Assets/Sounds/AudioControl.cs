@@ -11,9 +11,13 @@ public class AudioControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        audioM = FindObjectOfType<AudioManeger>(); // Procura no projeto algum objeto que tenha o 'AudioManeger'
+        // Usa a instância única (a duplicada da cena nova é destruída no Awake)
+        audioM = AudioManeger.instance;
 
-        audioM.PlayBGM(bgmMusic); // A música que vai estar na cena
+        if (audioM != null)
+        {
+            audioM.PlayBGM(bgmMusic); // A música que vai estar na cena
+        }
     }
 
 }

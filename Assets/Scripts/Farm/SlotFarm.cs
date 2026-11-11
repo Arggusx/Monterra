@@ -32,7 +32,7 @@ public class SlotFarm : MonoBehaviour
 
     private void Start()
     {
-        playerItems = FindObjectOfType<PlayerItems>(); // Encontra o script PlayerItems na cena
+        playerItems = FindAnyObjectByType<PlayerItems>(); // Encontra o script PlayerItems na cena
         inicialDigAmount = digAmount; // Salva o valor inicial da terra para comparação depois
     }
 
@@ -54,10 +54,13 @@ public class SlotFarm : MonoBehaviour
             }
             if (Input.GetKeyDown(KeyCode.E) && plantedCarrot && isPlayer) // Se o jogador apertar E
             {
-                plantedCarrot = true;
+                plantedCarrot = false; // Colheu: precisa regar de novo para crescer outra cenoura
                 audioSource.PlayOneShot(carrotSFX);
                 spriteRenderer.sprite = hole; // Volta para o sprite de buraco
-                playerItems.carrots++; // Dá uma cenoura ao jogador
+                if (playerItems.carrots < playerItems.carrotLimit)
+                {
+                    playerItems.carrots++; // Dá uma cenoura ao jogador (respeitando o limite)
+                }
                 currentWater = 0f; // Reseta a água para replantar
             }
         }
