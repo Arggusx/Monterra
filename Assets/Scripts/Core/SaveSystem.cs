@@ -30,6 +30,7 @@ public class SaveData
     // Mundo
     public List<string> builtHouses = new List<string>();
     public List<FarmSlotData> farmSlots = new List<FarmSlotData>();
+    public List<string> litLanterns = new List<string>(); // Lanternas acesas do Cemiterio da Colina
 }
 
 [Serializable]
@@ -148,6 +149,14 @@ public class SaveSystem : MonoBehaviour
             data.farmSlots.Add(slot.GetState(ObjectId(slot)));
         }
 
+        foreach (CemeteryLantern lantern in FindObjectsByType<CemeteryLantern>(FindObjectsInactive.Include))
+        {
+            if (lantern.IsLit)
+            {
+                data.litLanterns.Add(ObjectId(lantern));
+            }
+        }
+
         try
         {
             File.WriteAllText(SavePath, JsonUtility.ToJson(data, true));
@@ -225,6 +234,12 @@ public class SaveSystem : MonoBehaviour
             {
                 house.ApplyBuilt();
             }
+        }
+
+        HashSet<string> lit = new HashSet<string>(data.litLanterns);
+        foreach (CemeteryLantern lantern in FindObjectsByType<CemeteryLantern>(FindObjectsInactive.Include))
+        {
+            lantern.SetLit(lit.Contains(ObjectId(lantern)));
         }
 
         Dictionary<string, FarmSlotData> slots = new Dictionary<string, FarmSlotData>();

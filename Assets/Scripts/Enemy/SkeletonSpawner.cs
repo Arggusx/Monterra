@@ -65,6 +65,13 @@ public class SkeletonSpawner : MonoBehaviour
             }
         }
 
+        // Regiões novas (ex.: Cemiterio) ficam fora dos Props: entram no limite do mapa
+        foreach (RegionArea region in RegionArea.All)
+        {
+            if (mapBounds.size == Vector3.zero) mapBounds = region.Bounds;
+            else mapBounds.Encapsulate(region.Bounds);
+        }
+
         foreach (House h in FindObjectsByType<House>(FindObjectsInactive.Include)) safePoints.Add(h.transform.position);
         foreach (NPC n in FindObjectsByType<NPC>(FindObjectsInactive.Include)) safePoints.Add(n.transform.position);
         foreach (SlotFarm s in FindObjectsByType<SlotFarm>(FindObjectsInactive.Include)) safePoints.Add(s.transform.position);
@@ -108,7 +115,12 @@ public class SkeletonSpawner : MonoBehaviour
     private int TargetCount()
     {
         bool night = DayNightCycle.Instance != null && DayNightCycle.Instance.IsNight;
-        return night ? maxAliveNight : maxAliveDay;
+        if (!night)
+        {
+            return maxAliveDay;
+        }
+        // Cada lanterna acesa no cemitério tira um esqueleto da noite
+        return Mathf.Max(maxAliveDay, maxAliveNight - CemeteryLantern.LitCount);
     }
 
     private int CountAlive()
@@ -168,9 +180,13 @@ public class SkeletonSpawner : MonoBehaviour
             if (cumulativeArea == null || cumulativeArea.Length == 0) return false;
         }
 
+        RegionArea origin = NightOrigin();
         for (int i = 0; i < attemptsPerSpawn; i++)
         {
-            Vector3 candidate = RandomPointOnNavMesh();
+            // De noite, mais da metade sai do cemitério (enquanto as lanternas não estiverem todas acesas)
+            Vector3 candidate = origin != null && Random.value < 0.6f && TryPointInRegion(origin, out Vector3 inRegion)
+                ? inRegion
+                : RandomPointOnNavMesh();
             if (IsGoodSpawn(candidate))
             {
                 point = candidate;
@@ -215,6 +231,34 @@ public class SkeletonSpawner : MonoBehaviour
         }
 
         return true;
+    }
+
+    private RegionArea NightOrigin()
+    {
+        bool night = DayNightCycle.Instance != null && DayNightCycle.Instance.IsNight;
+        if (!night || CemeteryLantern.AllLit)
+        {
+            return null;
+        }
+        foreach (RegionArea region in RegionArea.All)
+        {
+            if (region.skeletonOrigin) return region;
+        }
+        return null;
+    }
+
+    private static bool TryPointInRegion(RegionArea region, out Vector3 point)
+    {
+        Bounds b = region.Bounds;
+        Vector3 guess = new Vector3(Random.Range(b.min.x, b.max.x), Random.Range(b.min.y, b.max.y), 0f);
+        if (NavMesh.SamplePosition(guess, out NavMeshHit hit, 1.5f, NavMesh.AllAreas) && region.Contains(hit.position))
+        {
+            point = hit.position;
+            point.z = 0f;
+            return true;
+        }
+        point = Vector3.zero;
+        return false;
     }
 
     private void CacheNavMesh()

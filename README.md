@@ -50,6 +50,8 @@ Funciona com **teclado e mouse** ou **controle** (Xbox / PlayStation).
 - **Inventário e moedas:** venda cenouras (5), peixes (8) e madeira (2) no inventário.
 - **Salvamento:** automático a cada novo dia e ao fechar o jogo; carrega sozinho ao abrir. Para recomeçar, use o menu **Monterra > Apagar save** no Editor.
 - **Esqueletos:** aparecem em lugares aleatórios dos campos, longe da vila e do jogador. De dia são até 3; à noite (20h às 6h), até 7. Quando morrem, voltam em outro lugar.
+- **Cemitério da Colina:** siga o caminho de terra para o norte, pelo portão na Muralha Velha. À noite, a maioria dos esqueletos nasce lá. Acenda as 4 lanternas com E (1 madeira cada): cada uma tira um esqueleto da noite.
+- **NavMesh:** depois de mudar o mapa, use **Monterra > Refazer NavMesh** (o botão Bake do NavMeshPlus sai vazio nesta versão).
 - **Lore e regiões:** a história, os personagens e o plano de regiões novas estão em [docs/LORE.md](docs/LORE.md).
 - **Imagem do mapa:** o menu **Monterra > Gerar imagem do mapa** salva uma foto do mapa inteiro em `MapSnapshot.png`.
 

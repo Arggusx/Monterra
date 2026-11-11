@@ -54,7 +54,7 @@ Ideias de personagens novos para as regiões futuras:
 
 Cada região pode virar uma branch própria. A ordem abaixo segue a progressão da história.
 
-1. **Cemitério da Colina** (norte, logo depois da muralha)
+1. **Cemitério da Colina** (norte, logo depois da muralha) — **já está no jogo**
    - **Clima:** névoa, lápides, árvores secas.
    - **Jogo:** é a origem dos esqueletos. A missão é reacender as quatro lanternas do cemitério para reduzir os esqueletos à noite.
    - **Recompensa:** a primeira página do diário do avô.
@@ -91,4 +91,6 @@ Cada região pode virar uma branch própria. A ordem abaixo segue a progressão 
 
 - **Esqueletos:** nascem em lugares aleatórios dos campos, longe da vila, e aparecem em maior número à noite (de 20h às 6h). Ver `Assets/Scripts/Enemy/SkeletonSpawner.cs`.
 - **Diálogos:** cada NPC tem uma fala que aponta para uma parte da história. Ver `Assets/Scripts/Dialogue/DialogueSttings/`.
+- **Cemitério da Colina:** construído pelo menu **Monterra > Regioes > Construir Cemiterio da Colina** (`Assets/Scripts/Editor/CemeteryBuilder.cs`). Tem quatro lanternas (`CemeteryLantern.cs`): cada uma acesa tira um esqueleto da noite, e com as quatro acesas Alex acha a primeira página do diário do avô. As lanternas ficam salvas.
+- **Nome das regiões:** ao entrar na vila ou no cemitério, o nome aparece no topo da tela (`RegionArea.cs`).
 - **Estátua da praça:** é o Guardião Aurélio. **Altar no bosque:** é a chama apagada do Vigia.
