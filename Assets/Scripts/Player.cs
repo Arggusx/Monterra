@@ -90,7 +90,7 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        cast = FindObjectOfType<Casting>();
+        cast = FindAnyObjectByType<Casting>();
         currentHealthPlayer = totalHealthPlayer;
         rig = GetComponent<Rigidbody2D>(); // Acessa o Rigidbody do jogador
         playerItems = GetComponent<PlayerItems>(); // Acessa o script de itens
@@ -105,6 +105,16 @@ public class Player : MonoBehaviour
 
     public void Update()
     {
+        if (isDead)
+        {
+            // Morto: não se move nem executa ações até renascer
+            _direction = Vector2.zero;
+            isMoving = false;
+            _isRunning = false;
+            speed = 0f;
+            return;
+        }
+
         if (!isPaused)
         {
             // Troca o item nas mãos com base na tecla pressionada
@@ -169,19 +179,7 @@ public class Player : MonoBehaviour
                 isMoving = false;
             }
 
-            bool wantsToRun = Input.GetKey(KeyCode.LeftShift);
-
-            if (wantsToRun && currentStamina > 0 && isMoving)
-            {
-                isRunning = true;
-            }
-
-            if (wantsToRun && currentStamina == 0)
-            {
-                isRunning = false;
-                speed = initialSpeed;
-
-            }
+            UpdateSpeed(); // Define a velocidade final do frame com base no estado atual
 
             if (Input.GetKeyDown(KeyCode.P)) // Se pressionar 'P', muda de cena
             {
@@ -192,11 +190,18 @@ public class Player : MonoBehaviour
             //    SceneManager.LoadScene("SampleScene");
             //}
         }
+        else
+        {
+            // Pausado (diálogo, construção, pesca): zera a direção para não ficar com animação de andar
+            _direction = Vector2.zero;
+            isMoving = false;
+            _isRunning = false;
+        }
     }
 
     public void FixedUpdate()
     {
-        if (!isPaused)
+        if (!isPaused && !isDead)
         {
             OnMove(); // Aplica movimentação física
         }
@@ -216,24 +221,33 @@ public class Player : MonoBehaviour
 
     void OnRun()
     {
-        if (isDead)
-        {
-            speed = 0f;
-            _isRunning = false;
-        }
-
         if (Input.GetKeyDown(KeyCode.LeftShift)) // Ao pressionar Shift
         {
-            speed = runSpeed; // Aumenta a velocidade
-            _isRunning = true;
             _isCutting = false; // Para de cortar se estiver correndo
             _isAttacking = false;
         }
+    }
 
-        if (Input.GetKeyUp(KeyCode.LeftShift)) // Ao soltar Shift
+    // Centraliza o cálculo da velocidade para evitar estados inconsistentes
+    // (ex.: animação de correr com velocidade de caminhada, ou parado após soltar o mouse)
+    void UpdateSpeed()
+    {
+        bool isBusy = _isCutting || _isDigging || _isWatering || _isAttacking || _isCasting;
+        bool wantsToRun = Input.GetKey(KeyCode.LeftShift);
+
+        _isRunning = wantsToRun && isMoving && !isBusy && currentStamina > 0f;
+
+        if (isBusy)
         {
-            speed = initialSpeed; // Volta à velocidade normal
-            _isRunning = false;
+            speed = 0f;
+        }
+        else if (_isRunning)
+        {
+            speed = runSpeed;
+        }
+        else
+        {
+            speed = initialSpeed;
         }
     }
 
@@ -348,7 +362,7 @@ public class Player : MonoBehaviour
             }
 
             // Se soltar o botão do mouse ou se acabar a água
-            if (Input.GetMouseButtonUp(0) || playerItems.currentWater < 0)
+            if (Input.GetMouseButtonUp(0) || playerItems.currentWater <= 0)
             {
                 isWatering = false; // Para de regar
                 speed = initialSpeed; // Volta à velocidade inicial
@@ -357,7 +371,7 @@ public class Player : MonoBehaviour
             // Se estiver regando(true), consome água
             if (isWatering)
             {
-                playerItems.currentWater -= 0.1f; // Diminui a água gradualmente
+                playerItems.currentWater = Mathf.Max(0f, playerItems.currentWater - 0.1f); // Diminui a água gradualmente, sem ficar negativa
             }
         }
         else
@@ -380,17 +394,10 @@ public class Player : MonoBehaviour
         }
     }
 
-    void UseItem()
-    {
-        Comer(valueHungry);
-        Destroy(gameObject); // ou remover do inventário
-    }
-
     void HandleHunger()
     {
         if (isMoving)
         {
-            Debug.Log("Ficano cum fome");
             currentHunger -= hungerDrainPerSecond * Time.deltaTime;
             currentHunger = Mathf.Clamp(currentHunger, 0, maxHunger);
         }

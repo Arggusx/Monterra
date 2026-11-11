@@ -1,8 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
-using UnityEngine.UIElements;
 
 public class NPC : MonoBehaviour
 {
@@ -22,7 +20,12 @@ public class NPC : MonoBehaviour
     void Update()
     {
         // Se o diálogo estiver ativo, para o NPC
-        if (DialogueControl.instance.isShowing)
+        if (paths.Count == 0)
+        {
+            return; // Sem caminhos configurados
+        }
+
+        if (DialogueControl.instance != null && DialogueControl.instance.isShowing)
         {
             speed = 0f; // Para de se mover
             anim.SetBool("isWalking", false); // Animação de parado

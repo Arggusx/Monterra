@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
 public class NPC_Dialogue : MonoBehaviour
 {
@@ -29,7 +27,6 @@ public class NPC_Dialogue : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E) && playerHit)  // Verifica se o jogador apertou a tecla 'E' e está perto do NPC para iniciar o diálogo
         {
-            Debug.Log("Cadê o diálogo");
             // Chama o método que inicia o diálogo, passando as frases como array
             DialogueControl.instance.Speech(sentences.ToArray(), actorName.ToArray(), actorSprite.ToArray());
         }

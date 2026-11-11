@@ -8,10 +8,14 @@ public class Fish : MonoBehaviour
     {
         if (collision.CompareTag("Player")) // Se colidiu com o jogador
         {
-            // Aumenta a quantidade de madeira do jogador
-            collision.GetComponent<PlayerItems>().fishes++;
+            // Aumenta a quantidade de peixes do jogador
+            PlayerItems items = collision.GetComponent<PlayerItems>();
+            if (items != null)
+            {
+                items.fishes++;
+            }
 
-            // Destroi esse objeto de madeira
+            // Destroi esse objeto de peixe
             Destroy(gameObject);
         }
     }

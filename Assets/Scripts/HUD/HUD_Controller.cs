@@ -28,7 +28,7 @@ public class HUD_Controller : MonoBehaviour
 
     private void Awake() // Chamado antes do 'Start' para evitar bugs
     {
-        playerItems = FindObjectOfType<PlayerItems>();
+        playerItems = FindAnyObjectByType<PlayerItems>();
         player = playerItems.GetComponent<Player>();
     }
 
@@ -61,6 +61,11 @@ public class HUD_Controller : MonoBehaviour
         // Modifica a opacidade da ferramenta quando selecionada
         for (int i = 0; i < toolsUI.Count; i++)
         {
+            if (toolsUI[i] == null)
+            {
+                continue;
+            }
+
             if (i == player.handlingObj)
             {
                 toolsUI[i].color = selectColor; // 'Remove' a opacidade da imagem da ferramenta selecionada

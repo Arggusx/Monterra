@@ -13,7 +13,7 @@ public class AudioManeger : MonoBehaviour
         if (instance == null) // Checa se não tem um objeto igual a 'AudioManeger' 
         {
             instance = this;
-            DontDestroyOnLoad(instance); // Se não existir, não destroi
+            DontDestroyOnLoad(gameObject); // Se não existir, não destroi
         }
         else
         {
@@ -23,6 +23,11 @@ public class AudioManeger : MonoBehaviour
 
     public void PlayBGM(AudioClip audio)
     {
+        if (audioSource.clip == audio && audioSource.isPlaying)
+        {
+            return; // Mesma música já tocando: não reinicia ao trocar de cena
+        }
+
         audioSource.clip = audio; // Troca a música em outra cena
         audioSource.Play(); // Toca essa música
     }

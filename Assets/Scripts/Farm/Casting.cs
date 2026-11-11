@@ -17,23 +17,24 @@ public class Casting : MonoBehaviour
     // Start é chamado antes do primeiro frame
     void Start()
     {
-        playerItems = FindObjectOfType<PlayerItems>(); // Encontra o objeto com o script PlayerItems na cena
+        playerItems = FindAnyObjectByType<PlayerItems>(); // Encontra o objeto com o script PlayerItems na cena
         playerAnim = playerItems.GetComponent<PlayerAnim>();
+        player = playerItems.GetComponent<Player>();
     }
 
     // Update é chamado a cada frame
     void Update()
     {
-        if (detectingPlayer && Input.GetMouseButtonDown(0)) // Se o jogador estiver na área e apertar E
+        // Se o jogador estiver na área, apertar E e não estiver ocupado (pausado/morto)
+        if (detectingPlayer && Input.GetKeyDown(KeyCode.E) && !player.isPaused && !player.isDead)
         {
-            player.OnCasting();
             playerAnim.OnCastingStarded();
         }
     }
 
     public void OnCasting()
     {
-        int randonValue = Random.Range(1, 100);
+        int randonValue = Random.Range(1, 101); // 1 a 100 (o máximo é exclusivo)
         if (randonValue <= percentage)
         {
 

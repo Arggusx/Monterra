@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-public class Tree : MonoBehaviour
+// Antes se chamava "Tree", nome que conflita com o componente nativo da Unity 6
+public class ArvoreCorte : MonoBehaviour
 {
 
     [SerializeField] private float treeHealth;

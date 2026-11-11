@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
+#if UNITY_EDITOR
+using UnityEditor; // Só existe no Editor: fora do #if, quebra o build do jogo
+#endif
 
 // Para aparecer na janela 'Peoject' na Unity
 [CreateAssetMenu(fileName = "New Dialogue", menuName = "New Dialogue/Dialogue")]
@@ -59,11 +61,13 @@ public class BuilderEditor : Editor
         {
             if (ds.sentence != "") // Para não adicionar falas em branco
             {
+                Undo.RecordObject(ds, "Create Dialogue");
                 ds.dialogues.Add(s); // Adiciona à lista de sentenças
 
                 // Para limpar a sentença já utilizada
                 ds.speakerSprite = null;
                 ds.sentence = "";
+                EditorUtility.SetDirty(ds); // Garante que a alteração seja salva no asset
             }
         }
 
