@@ -94,7 +94,7 @@ public class DayNightCycle : MonoBehaviour
     // Mostra um aviso rápido na tela (ex.: "Jogo salvo")
     public void ShowMessage(string text, float seconds = 2f)
     {
-        messageText.text = text;
+        messageText.text = UIFactory.Plain(text);
         messageTimer = seconds;
     }
 
@@ -119,26 +119,26 @@ public class DayNightCycle : MonoBehaviour
         UIFactory.Stretch(overlay.rectTransform);
         overlay.raycastTarget = false; // Não bloqueia cliques
 
-        // Relógio por cima de tudo, no canto superior direito
+        // Relógio por cima de tudo, no centro do topo (os cantos já são do HUD de ferramentas e itens)
         Canvas clockCanvas = UIFactory.CreateCanvas("DayNight_Clock", 50, transform);
 
         Image box = UIFactory.CreateImage(clockCanvas.transform, "ClockBox", new Color(0f, 0f, 0f, 0.45f));
         box.raycastTarget = false;
         RectTransform boxRect = box.rectTransform;
-        boxRect.anchorMin = boxRect.anchorMax = boxRect.pivot = new Vector2(1f, 1f);
-        boxRect.anchoredPosition = new Vector2(-16f, -16f);
+        boxRect.anchorMin = boxRect.anchorMax = boxRect.pivot = new Vector2(0.5f, 1f);
+        boxRect.anchoredPosition = new Vector2(0f, -12f);
         boxRect.sizeDelta = new Vector2(230f, 70f);
 
         clockText = UIFactory.CreateText(box.transform, "Clock", 26, TextAlignmentOptions.Center);
         UIFactory.Stretch(clockText.rectTransform);
 
-        // Mensagens rápidas no centro-baixo da tela
+        // Mensagens rápidas logo abaixo do relógio (embaixo fica a caixa de diálogo)
         messageText = UIFactory.CreateText(clockCanvas.transform, "Message", 30, TextAlignmentOptions.Center);
         RectTransform msgRect = messageText.rectTransform;
-        msgRect.anchorMin = new Vector2(0.5f, 0f);
-        msgRect.anchorMax = new Vector2(0.5f, 0f);
-        msgRect.pivot = new Vector2(0.5f, 0f);
-        msgRect.anchoredPosition = new Vector2(0f, 120f);
+        msgRect.anchorMin = new Vector2(0.5f, 1f);
+        msgRect.anchorMax = new Vector2(0.5f, 1f);
+        msgRect.pivot = new Vector2(0.5f, 1f);
+        msgRect.anchoredPosition = new Vector2(0f, -92f);
         msgRect.sizeDelta = new Vector2(600f, 50f);
         messageText.text = "";
     }

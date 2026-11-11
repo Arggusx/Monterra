@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class AnimationControll : MonoBehaviour
 {
@@ -78,25 +79,43 @@ public class AnimationControll : MonoBehaviour
 
     void Die()
     {
+        if (SkeletonSpawner.Instance != null)
+        {
+            // O spawner decide quando e em que lugar aleatório ele volta
+            SkeletonSpawner.Instance.OnSkeletonDied(skeleton);
+            skeleton.gameObject.SetActive(false);
+            return;
+        }
+
+        // Sem spawner na cena: renasce no mesmo lugar.
         // Este script fica num filho do esqueleto: ao desativar o pai, Invoke/Coroutines daqui param.
         // Por isso o renascimento é agendado num objeto que continua ativo.
-        RespawnScheduler.Schedule(3f, Respawn); // Renasce após 3 segundos
+        RespawnScheduler.Schedule(3f, () => Revive(startPosition));
         skeleton.gameObject.SetActive(false); // Desativa o inimigo
     }
 
-    void Respawn()
+    // Traz o esqueleto de volta à vida na posição indicada
+    public void Revive(Vector3 position)
     {
-        // Restaura o movimento após remover
-        skeleton.transform.position = startPosition;
         skeleton.transform.rotation = startRotation;
 
         // Restaura a vida
         skeleton.currentHealth = skeleton.totalHealth;
-
         skeleton.isDead = false;
         skeleton.helthBar.fillAmount = 1f; // Restaura a barra de vida
 
         skeleton.gameObject.SetActive(true); // Reativa antes de mexer no Animator (Animator inativo ignora parâmetros)
+
+        // O NavMeshAgent precisa de Warp para mudar de lugar sem "andar" até lá
+        NavMeshAgent agent = skeleton.GetComponent<NavMeshAgent>();
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.Warp(position);
+        }
+        else
+        {
+            skeleton.transform.position = position;
+        }
 
         anim.ResetTrigger("death");
         anim.ResetTrigger("hit");

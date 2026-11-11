@@ -66,3 +66,4 @@ local.properties
 # Unity 6
 *.slnx
 [Uu]ser[Ss]ettings/
+/MapSnapshot.png

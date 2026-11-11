@@ -86,9 +86,9 @@ public class InventoryUI : MonoBehaviour
         sb.AppendLine($"Madeira:  {items.totalWood} / {items.woodLimit}");
         sb.AppendLine($"Cenouras: {items.carrots} / {items.carrotLimit}");
         sb.AppendLine($"Peixes:   {items.fishes} / {items.fishesLimit}");
-        sb.AppendLine($"Água:     {Mathf.FloorToInt(items.currentWater)} / {items.waterLimit}");
+        sb.AppendLine($"Agua:     {Mathf.FloorToInt(items.currentWater)} / {items.waterLimit}");
         sb.AppendLine($"Moedas:   {items.coins}");
-        sb.Append($"Nível {items.currentLevel}  |  Fome {Mathf.CeilToInt(player.currentHunger)} / {player.maxHunger}");
+        sb.Append($"Nivel {items.currentLevel}  |  Fome {Mathf.CeilToInt(player.currentHunger)} / {player.maxHunger}");
         itemsText.text = sb.ToString();
     }
 
@@ -145,7 +145,7 @@ public class InventoryUI : MonoBehaviour
         layout.childForceExpandHeight = false;
 
         TextMeshProUGUI title = UIFactory.CreateText(panel.transform, "Title", 34, TextAlignmentOptions.Center);
-        title.text = "Inventário";
+        title.text = "Inventario"; // A fonte pixelada não tem acentos
         title.gameObject.AddComponent<LayoutElement>().preferredHeight = 44f;
 
         itemsText = UIFactory.CreateText(panel.transform, "Items", 24, TextAlignmentOptions.TopLeft);

@@ -19,24 +19,42 @@ MonoBehaviour:
   - actorName: Crystal
     profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
     sentences:
-      portuguese: Ola, voce por acaso seria o garotinho novo da aldeia?
+      portuguese: Ola! Voce e o neto do seu Otavio?
       english: 
       spanish: 
   - actorName: Alex
     profile: {fileID: 21300000, guid: b87ca18a4d5545e16b0324e2545547c7, type: 3}
     sentences:
-      portuguese: Oi, pode me chamar de Alex.
+      portuguese: Sou sim. Pode me chamar de Alex.
       english: 
       spanish: 
   - actorName: Alex
     profile: {fileID: 21300000, guid: b87ca18a4d5545e16b0324e2545547c7, type: 3}
     sentences:
-      portuguese: E... Sim, eu sou novo, mas ja morei por aqui antes.
+      portuguese: Ja morei aqui quando era pequeno.
       english: 
       spanish: 
   - actorName: Crystal
     profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
     sentences:
-      portuguese: Prazer em te conhecer, agora vou voltar a pescar.
+      portuguese: Prazer! Eu pesco no Lago Espelho todo dia.
+      english: 
+      spanish: 
+  - actorName: Crystal
+    profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
+    sentences:
+      portuguese: Dizem que em noite de lua o lago mostra a Ruina.
+      english: 
+      spanish: 
+  - actorName: Crystal
+    profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
+    sentences:
+      portuguese: Bobagem de pescador... eu acho.
+      english: 
+      spanish: 
+  - actorName: Crystal
+    profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
+    sentences:
+      portuguese: Se pescar demais, venda os peixes. Valem bem!
       english: 
       spanish: 

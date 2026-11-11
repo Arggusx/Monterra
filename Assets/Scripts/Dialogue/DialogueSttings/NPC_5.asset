@@ -19,44 +19,60 @@ MonoBehaviour:
   - actorName: Lara
     profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
     sentences:
-      portuguese: Oiiiiiii!!!!
+      portuguese: Oiiiii!!!
       english: 
       spanish: 
   - actorName: Lara
     profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
     sentences:
-      portuguese: Nossa, quanto tempo, que saudade!
+      portuguese: Alex! Quanto tempo, que saudade!
       english: 
       spanish: 
   - actorName: Lara
     profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
     sentences:
-      portuguese: Quando voce chegou? Porque nao avisou que estava vindo?
+      portuguese: Quando voce chegou? Por que nao avisou?
       english: 
       spanish: 
   - actorName: Alex
     profile: {fileID: 21300000, guid: b87ca18a4d5545e16b0324e2545547c7, type: 3}
     sentences:
-      portuguese: Oi, tudo bem? Eu praticamente acabei de chegar.
+      portuguese: Cheguei agora! Acho que vou ficar de vez.
       english: 
       spanish: 
   - actorName: Alex
     profile: {fileID: 21300000, guid: b87ca18a4d5545e16b0324e2545547c7, type: 3}
     sentences:
-      portuguese: Eu acho que posso ficar por definitivo aqui.
-      english: 
-      spanish: 
-  - actorName: Alex
-    profile: {fileID: 21300000, guid: b87ca18a4d5545e16b0324e2545547c7, type: 3}
-    sentences:
-      portuguese: Pois quero cuidar da fazenda do meu avo, e estou sendo muito bem
-        acolhido.
+      portuguese: Quero cuidar da fazenda do meu avo.
       english: 
       spanish: 
   - actorName: Lara
     profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
     sentences:
-      portuguese: Ah! Que maravilha! Eu tenho tanto para te mostrar depois de sua
-        partida.
+      portuguese: Que maravilha! Tenho tanto para te mostrar!
+      english: 
+      spanish: 
+  - actorName: Lara
+    profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
+    sentences:
+      portuguese: Viu a estatua da praca? E o Guardiao Aurelio.
+      english: 
+      spanish: 
+  - actorName: Lara
+    profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
+    sentences:
+      portuguese: Ele selou a Ruina do norte ha duzentos anos.
+      english: 
+      spanish: 
+  - actorName: Lara
+    profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
+    sentences:
+      portuguese: Um dia a gente pula a muralha e vai ver de perto!
+      english: 
+      spanish: 
+  - actorName: Alex
+    profile: {fileID: 21300000, guid: b87ca18a4d5545e16b0324e2545547c7, type: 3}
+    sentences:
+      portuguese: Melhor eu cuidar das cenouras primeiro...
       english: 
       spanish: 

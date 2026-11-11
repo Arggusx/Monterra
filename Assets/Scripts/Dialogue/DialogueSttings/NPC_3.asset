@@ -19,30 +19,60 @@ MonoBehaviour:
   - actorName: Maria
     profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
     sentences:
-      portuguese: Esta tao creacido!
+      portuguese: Alex? Como voce esta crescido!
       english: 
       spanish: 
   - actorName: Maria
     profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
     sentences:
-      portuguese: Opa, rapaz! Como vai senhour, como voce esta depois de tanto teampo?!
+      portuguese: Quanto tempo, menino! Como voce esta?
       english: 
       spanish: 
   - actorName: Alex
     profile: {fileID: 21300000, guid: b87ca18a4d5545e16b0324e2545547c7, type: 3}
     sentences:
-      portuguese: Ola tia, tudo bem?
+      portuguese: Oi, tia! Tudo bem?
       english: 
       spanish: 
   - actorName: Alex
     profile: {fileID: 21300000, guid: b87ca18a4d5545e16b0324e2545547c7, type: 3}
     sentences:
-      portuguese: Eu voltei para cuidar da fazenda do meu avo.
+      portuguese: Voltei para cuidar da fazenda do vo Otavio.
       english: 
       spanish: 
   - actorName: Maria
     profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
     sentences:
-      portuguese: Seu avo amava a fazenda, cuide bem dela!
+      portuguese: Ele amava aquela terra... e esta vila tambem.
+      english: 
+      spanish: 
+  - actorName: Maria
+    profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
+    sentences:
+      portuguese: Sabia que ele era o Vigia de Monterra?
+      english: 
+      spanish: 
+  - actorName: Maria
+    profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
+    sentences:
+      portuguese: Toda noite ele acendia o altar do bosque da colina.
+      english: 
+      spanish: 
+  - actorName: Maria
+    profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
+    sentences:
+      portuguese: Depois que ele se foi, ninguem mais subiu la.
+      english: 
+      spanish: 
+  - actorName: Alex
+    profile: {fileID: 21300000, guid: b87ca18a4d5545e16b0324e2545547c7, type: 3}
+    sentences:
+      portuguese: Altar? Ele nunca me contou nada disso...
+      english: 
+      spanish: 
+  - actorName: Maria
+    profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
+    sentences:
+      portuguese: Procure as coisas dele. Seu avo sempre deixava pistas.
       english: 
       spanish: 

@@ -19,27 +19,42 @@ MonoBehaviour:
   - actorName: Jasmine
     profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
     sentences:
-      portuguese: Bom dia, meu querido. Como esta sua manha?!
+      portuguese: Bom dia, meu querido! Como esta sua manha?
       english: 
       spanish: 
   - actorName: Alex
     profile: {fileID: 21300000, guid: b87ca18a4d5545e16b0324e2545547c7, type: 3}
     sentences:
-      portuguese: Esta tudo tranquilo, acabei de chegar na fazenda. To me acostumando
-        com o lugar.
+      portuguese: Tudo tranquilo. Acabei de chegar na fazenda.
       english: 
       spanish: 
   - actorName: Jasmine
     profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
     sentences:
-      portuguese: Bom, espero que voce se adapte bem, e se divirta cuidando da fazenda
-        que seu avo te deu.
+      portuguese: Que bom ver as terras do Otavio cuidadas de novo.
       english: 
       spanish: 
   - actorName: Jasmine
     profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
     sentences:
-      portuguese: Qualquer dia desses, voce pode passar la em casa. Farei uma torta
-        de laranja deliciosa!
+      portuguese: Mas volte para casa antes de escurecer, ouviu?
+      english: 
+      spanish: 
+  - actorName: Alex
+    profile: {fileID: 21300000, guid: b87ca18a4d5545e16b0324e2545547c7, type: 3}
+    sentences:
+      portuguese: Por que? O que acontece de noite?
+      english: 
+      spanish: 
+  - actorName: Jasmine
+    profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
+    sentences:
+      portuguese: Desde que seu avo partiu, os ossos andam pelos campos...
+      english: 
+      spanish: 
+  - actorName: Jasmine
+    profile: {fileID: 21300000, guid: cf05aada6a1dbf1f58ebc31beb17b0f8, type: 3}
+    sentences:
+      portuguese: Passe la em casa um dia. Farei torta de cenoura!
       english: 
       spanish: 

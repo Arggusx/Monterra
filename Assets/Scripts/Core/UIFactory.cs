@@ -22,6 +22,26 @@ public static class UIFactory
         }
     }
 
+    // A fonte pixel art do jogo não tem letras acentuadas: troca "á" por "a", "ç" por "c" etc.
+    public static string Plain(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return text;
+        }
+
+        string decomposed = text.Normalize(System.Text.NormalizationForm.FormD);
+        System.Text.StringBuilder sb = new System.Text.StringBuilder(decomposed.Length);
+        foreach (char c in decomposed)
+        {
+            if (System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.NonSpacingMark)
+            {
+                sb.Append(c);
+            }
+        }
+        return sb.ToString().Normalize(System.Text.NormalizationForm.FormC);
+    }
+
     public static Canvas CreateCanvas(string name, int sortingOrder, Transform parent)
     {
         GameObject go = new GameObject(name, typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
@@ -79,7 +99,7 @@ public static class UIFactory
         button.onClick.AddListener(onClick);
 
         TextMeshProUGUI text = CreateText(bg.transform, "Label", 22, TextAlignmentOptions.Center);
-        text.text = label;
+        text.text = Plain(label);
         Stretch(text.rectTransform);
 
         LayoutElement layout = bg.gameObject.AddComponent<LayoutElement>();

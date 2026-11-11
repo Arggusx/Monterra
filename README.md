@@ -45,10 +45,13 @@ Funciona com **teclado e mouse** ou **controle** (Xbox / PlayStation).
 
 ## Sistemas
 
-- **Dia e noite:** um dia do jogo dura 12 minutos reais. O relógio e as moedas ficam no canto superior direito.
+- **Dia e noite:** um dia do jogo dura 12 minutos reais. O relógio e as moedas ficam no centro do topo da tela.
 - **Plantação:** cave com a pá, regue com o balde e espere ~2 horas do jogo até a cenoura crescer. Colha com E.
 - **Inventário e moedas:** venda cenouras (5), peixes (8) e madeira (2) no inventário.
 - **Salvamento:** automático a cada novo dia e ao fechar o jogo; carrega sozinho ao abrir. Para recomeçar, use o menu **Monterra > Apagar save** no Editor.
+- **Esqueletos:** aparecem em lugares aleatórios dos campos, longe da vila e do jogador. De dia são até 3; à noite (20h às 6h), até 7. Quando morrem, voltam em outro lugar.
+- **Lore e regiões:** a história, os personagens e o plano de regiões novas estão em [docs/LORE.md](docs/LORE.md).
+- **Imagem do mapa:** o menu **Monterra > Gerar imagem do mapa** salva uma foto do mapa inteiro em `MapSnapshot.png`.
 
 ---
 
