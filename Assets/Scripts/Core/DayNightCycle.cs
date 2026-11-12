@@ -91,6 +91,9 @@ public class DayNightCycle : MonoBehaviour
 
     public bool IsNight => hour >= 20f || hour < 6f;
 
+    // Quão escuro está agora (0 = dia claro, ~0.55 = madrugada). Usado pelas luzes.
+    public float Darkness => overlay != null ? overlay.color.a : 0f;
+
     // Mostra um aviso rápido na tela (ex.: "Jogo salvo")
     public void ShowMessage(string text, float seconds = 2f)
     {

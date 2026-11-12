@@ -10,12 +10,13 @@ public class CemeteryLantern : MonoBehaviour
 
     [SerializeField] private float interactRadius = 1.4f;
     [SerializeField] private int woodCost = 1;
-    [SerializeField] private Color glowColor = new Color(1f, 0.72f, 0.3f, 0.55f);
-
-    private static Sprite glowSprite;
+    [SerializeField] private float lightRadius = 4.5f; // Alcance da luz em unidades (tiles)
+    [SerializeField] private Color haloColor = new Color(1f, 0.62f, 0.25f, 0.45f);
+    [SerializeField] private Color coreColor = new Color(1f, 0.88f, 0.55f, 0.75f);
 
     private SpriteRenderer body;
-    private SpriteRenderer glow;
+    private LightOverlay.Light halo; // Luz larga e alaranjada
+    private LightOverlay.Light core; // Centro claro em volta da chama
     private Player player;
     private PlayerItems items;
     private bool playerWasNear;
@@ -49,21 +50,20 @@ public class CemeteryLantern : MonoBehaviour
         player = FindAnyObjectByType<Player>();
         items = player != null ? player.GetComponent<PlayerItems>() : null;
         body = GetComponent<SpriteRenderer>();
-        glow = CreateGlow();
+        halo = LightOverlay.Add(transform, new Vector2(0f, 0.4f), lightRadius, haloColor);
+        core = LightOverlay.Add(transform, new Vector2(0f, 0.45f), lightRadius * 0.35f, coreColor);
         Apply();
     }
 
     private void Update()
     {
-        if (glow != null && IsLit)
+        if (IsLit && halo != null)
         {
-            // Chama tremendo; mais forte de noite
-            bool night = DayNightCycle.Instance != null && DayNightCycle.Instance.IsNight;
+            // Chama tremendo
             float flicker = 0.85f + Mathf.PerlinNoise(Time.time * 3f, transform.position.x) * 0.3f;
-            Color c = glowColor;
-            c.a = glowColor.a * flicker * (night ? 1.3f : 0.6f);
-            glow.color = c;
-            glow.transform.localScale = Vector3.one * (0.95f + flicker * 0.1f);
+            halo.intensity = flicker;
+            core.intensity = flicker;
+            halo.radius = lightRadius * (0.96f + flicker * 0.06f);
         }
 
         if (player == null || items == null || player.isDead)
@@ -117,46 +117,11 @@ public class CemeteryLantern : MonoBehaviour
         {
             body.color = IsLit ? Color.white : new Color(0.55f, 0.55f, 0.65f);
         }
-        if (glow != null)
+        if (halo != null)
         {
-            glow.enabled = IsLit;
+            halo.intensity = IsLit ? 1f : 0f;
+            core.intensity = IsLit ? 1f : 0f;
         }
-    }
-
-    // Brilho redondo criado por código (não precisa de sprite extra no projeto)
-    private SpriteRenderer CreateGlow()
-    {
-        if (glowSprite == null)
-        {
-            const int size = 64;
-            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
-            tex.filterMode = FilterMode.Bilinear;
-            tex.wrapMode = TextureWrapMode.Clamp;
-            for (int y = 0; y < size; y++)
-            {
-                for (int x = 0; x < size; x++)
-                {
-                    float d = Vector2.Distance(new Vector2(x, y), new Vector2(size / 2f, size / 2f)) / (size / 2f);
-                    float a = Mathf.Clamp01(1f - d);
-                    tex.SetPixel(x, y, new Color(1f, 1f, 1f, a * a));
-                }
-            }
-            tex.Apply();
-            glowSprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 16f); // 4 unidades de largura
-        }
-
-        GameObject go = new GameObject("Glow");
-        go.transform.SetParent(transform, false);
-        go.transform.localPosition = new Vector3(0f, 0.6f, 0f);
-        SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
-        sr.sprite = glowSprite;
-        sr.color = glowColor;
-        if (body != null)
-        {
-            sr.sortingLayerID = body.sortingLayerID;
-            sr.sortingOrder = body.sortingOrder + 1;
-        }
-        return sr;
     }
 
     private static void Message(string text, float seconds = 2.5f)
