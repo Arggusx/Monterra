@@ -41,12 +41,24 @@ Funciona com **teclado e mouse** ou **controle** (Xbox / PlayStation).
 | Comer peixe | F | Y (Triângulo) |
 | Comer cenoura | G | pelo inventário |
 | Inventário (comer e vender itens) | I ou Tab | Select / Share |
+| Trocar a semente para plantar | V | Apertar o analógico direito |
 | Salvar / carregar | F5 / F9 | - |
 
 ## Sistemas
 
 - **Dia e noite:** um dia do jogo dura 12 minutos reais. O relógio e as moedas ficam no centro do topo da tela.
-- **Plantação:** cave com a pá, regue com o balde e espere ~2 horas do jogo até a cenoura crescer. Colha com E.
+- **Plantação:** cave com a pá, aperte E no buraco para plantar a semente escolhida (V troca), regue com o balde e espere crescer. Colha com E.
+- **Plantas e loja:** a Jasmine vende sementes depois da primeira conversa (fale com ela de novo e aperte E). Na loja também dá para vender toda a colheita.
+
+| Planta | Semente | Vende por | Cresce em (horas do jogo) |
+|---|---|---|---|
+| Cenoura | 2 | 5 | 2 |
+| Trigo | 1 | 3 | 1,5 |
+| Repolho | 4 | 10 | 4 |
+| Morango | 6 | 15 | 6 |
+| Abóbora | 10 | 28 | 10 |
+
+O jogo novo começa com 5 sementes de cenoura. As plantas novas são desenhadas por código em `Assets/Scripts/Farm/CropDatabase.cs`.
 - **Inventário e moedas:** venda cenouras (5), peixes (8) e madeira (2) no inventário.
 - **Salvamento:** automático a cada novo dia e ao fechar o jogo; carrega sozinho ao abrir. Para recomeçar, use o menu **Monterra > Apagar save** no Editor.
 - **Esqueletos:** aparecem em lugares aleatórios dos campos, longe da vila e do jogador. De dia são até 3; à noite (20h às 6h), até 7. Quando morrem, voltam em outro lugar.

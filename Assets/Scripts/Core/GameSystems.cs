@@ -37,6 +37,7 @@ public static class GameSystems
         GameObject systems = new GameObject("GameSystems");
         systems.AddComponent<DayNightCycle>(); // Primeiro: os outros usam o relógio
         systems.AddComponent<InventoryUI>();
+        systems.AddComponent<ShopUI>();
         systems.AddComponent<SaveSystem>();
     }
 

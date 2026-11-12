@@ -103,6 +103,11 @@ public static class GameInput
         (Kb != null && (Kb.iKey.wasPressedThisFrame || Kb.tabKey.wasPressedThisFrame)) ||
         (Pad != null && Pad.selectButton.wasPressedThisFrame);
 
+    // Troca a semente escolhida para plantar
+    public static bool NextSeedPressed =>
+        (Kb != null && Kb.vKey.wasPressedThisFrame) ||
+        (Pad != null && Pad.rightStickButton.wasPressedThisFrame);
+
     public static bool SavePressed => Kb != null && Kb.f5Key.wasPressedThisFrame;
     public static bool LoadPressed => Kb != null && Kb.f9Key.wasPressedThisFrame;
 

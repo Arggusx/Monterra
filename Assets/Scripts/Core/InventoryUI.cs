@@ -10,7 +10,7 @@ using UnityEngine.UI;
 public class InventoryUI : MonoBehaviour
 {
     // Preço de venda de cada item (em moedas)
-    public const int CarrotPrice = 5;
+    public static int CarrotPrice => CropDatabase.All[CropDatabase.Carrot].sellPrice;
     public const int FishPrice = 8;
     public const int WoodPrice = 2;
 
@@ -39,7 +39,16 @@ public class InventoryUI : MonoBehaviour
             return;
         }
 
-        if (GameInput.InventoryPressed)
+        if (GameInput.NextSeedPressed && !player.isDead)
+        {
+            items.NextSeed();
+            if (DayNightCycle.Instance != null)
+            {
+                DayNightCycle.Instance.ShowMessage("Semente: " + items.SelectedSeedLabel, 1.5f);
+            }
+        }
+
+        if (GameInput.InventoryPressed && (ShopUI.Instance == null || !ShopUI.Instance.IsOpen))
         {
             if (IsOpen)
             {
@@ -88,6 +97,24 @@ public class InventoryUI : MonoBehaviour
         sb.AppendLine($"Peixes:   {items.fishes} / {items.fishesLimit}");
         sb.AppendLine($"Agua:     {Mathf.FloorToInt(items.currentWater)} / {items.waterLimit}");
         sb.AppendLine($"Moedas:   {items.coins}");
+        sb.Append("Colheita: ");
+        bool any = false;
+        for (int i = 0; i < CropDatabase.Count; i++)
+        {
+            if (i == CropDatabase.Carrot || items.harvest[i] == 0) continue;
+            sb.Append($"{CropDatabase.All[i].name} {items.harvest[i]}  ");
+            any = true;
+        }
+        sb.AppendLine(any ? "" : "nada");
+        sb.Append("Sementes: ");
+        for (int i = 0; i < CropDatabase.Count; i++)
+        {
+            if (items.seeds[i] > 0 || i == items.selectedSeed)
+            {
+                sb.Append(i == items.selectedSeed ? $"[{CropDatabase.All[i].name} {items.seeds[i]}]  " : $"{CropDatabase.All[i].name} {items.seeds[i]}  ");
+            }
+        }
+        sb.AppendLine();
         sb.Append($"Nivel {items.currentLevel}  |  Fome {Mathf.CeilToInt(player.currentHunger)} / {player.maxHunger}");
         itemsText.text = sb.ToString();
     }
@@ -125,6 +152,15 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+    private void SellHarvest()
+    {
+        int earned = items.SellAllHarvest();
+        if (DayNightCycle.Instance != null)
+        {
+            DayNightCycle.Instance.ShowMessage(earned > 0 ? $"+{earned} moedas" : "Nada para vender", 1.5f);
+        }
+    }
+
     #endregion
 
     private void BuildUI()
@@ -135,7 +171,7 @@ public class InventoryUI : MonoBehaviour
         panel = bg.gameObject;
         RectTransform rect = bg.rectTransform;
         rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
-        rect.sizeDelta = new Vector2(560f, 520f);
+        rect.sizeDelta = new Vector2(760f, 690f);
 
         VerticalLayoutGroup layout = panel.AddComponent<VerticalLayoutGroup>();
         layout.padding = new RectOffset(24, 24, 18, 18);
@@ -148,14 +184,16 @@ public class InventoryUI : MonoBehaviour
         title.text = "Inventario"; // A fonte pixelada não tem acentos
         title.gameObject.AddComponent<LayoutElement>().preferredHeight = 44f;
 
-        itemsText = UIFactory.CreateText(panel.transform, "Items", 24, TextAlignmentOptions.TopLeft);
-        itemsText.gameObject.AddComponent<LayoutElement>().preferredHeight = 170f;
+        itemsText = UIFactory.CreateText(panel.transform, "Items", 21, TextAlignmentOptions.TopLeft);
+        itemsText.gameObject.AddComponent<LayoutElement>().preferredHeight = 210f;
 
         firstButton = UIFactory.CreateButton(panel.transform, "Comer cenoura (G)", EatCarrot);
         UIFactory.CreateButton(panel.transform, "Comer peixe (F)", EatFish);
         UIFactory.CreateButton(panel.transform, $"Vender cenoura (+{CarrotPrice})", SellCarrot);
         UIFactory.CreateButton(panel.transform, $"Vender peixe (+{FishPrice})", SellFish);
         UIFactory.CreateButton(panel.transform, $"Vender madeira (+{WoodPrice})", SellWood);
+        UIFactory.CreateButton(panel.transform, "Vender toda a colheita (menos cenoura)", SellHarvest);
+        UIFactory.CreateButton(panel.transform, "Trocar semente (V)", () => items.NextSeed());
         UIFactory.CreateButton(panel.transform, "Fechar (I)", Close);
     }
 }

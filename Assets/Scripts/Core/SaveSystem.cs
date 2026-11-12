@@ -31,6 +31,12 @@ public class SaveData
     public List<string> builtHouses = new List<string>();
     public List<FarmSlotData> farmSlots = new List<FarmSlotData>();
     public List<string> litLanterns = new List<string>(); // Lanternas acesas do Cemiterio da Colina
+
+    // Sementes e colheita (índices de CropDatabase.All)
+    public int[] seeds;
+    public int[] harvest;
+    public int selectedSeed;
+    public bool shopUnlocked;
 }
 
 [Serializable]
@@ -41,7 +47,9 @@ public class FarmSlotData
     public bool dugHole;
     public float currentWater;
     public float growth;
-    public bool plantedCarrot;
+    public bool plantedCarrot; // Planta pronta para colher
+    public bool seeded;
+    public int crop;
 }
 
 // Salvar: F5, automaticamente a cada novo dia e ao fechar o jogo.
@@ -126,6 +134,10 @@ public class SaveSystem : MonoBehaviour
             coins = items.coins,
             water = items.currentWater,
             level = items.currentLevel,
+            seeds = (int[])items.seeds.Clone(),
+            harvest = (int[])items.harvest.Clone(),
+            selectedSeed = items.selectedSeed,
+            shopUnlocked = ShopUI.Instance != null && ShopUI.Instance.Unlocked,
             xp = items.currentXP,
             xpLimit = items.xpLimit,
         };
@@ -196,6 +208,17 @@ public class SaveSystem : MonoBehaviour
         items.coins = data.coins;
         items.currentWater = data.water;
         items.currentLevel = data.level;
+        if (data.seeds != null && data.seeds.Length > 0) // Saves antigos não têm sementes: fica o padrão
+        {
+            items.seeds = (int[])data.seeds.Clone();
+            items.harvest = data.harvest != null ? (int[])data.harvest.Clone() : new int[CropDatabase.Count];
+            items.selectedSeed = data.selectedSeed;
+        }
+        items.EnsureArrays();
+        if (ShopUI.Instance != null)
+        {
+            ShopUI.Instance.Unlocked = data.shopUnlocked;
+        }
         items.currentXP = data.xp;
         if (data.xpLimit > 0)
         {

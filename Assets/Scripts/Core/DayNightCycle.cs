@@ -76,7 +76,7 @@ public class DayNightCycle : MonoBehaviour
 
         int h = Mathf.FloorToInt(hour);
         int m = Mathf.FloorToInt((hour - h) * 60f / 10f) * 10; // Relógio de 10 em 10 minutos
-        string coins = playerItems != null ? $"\nMoedas: {playerItems.coins}" : "";
+        string coins = playerItems != null ? $"\nMoedas: {playerItems.coins}\nSemente: {playerItems.SelectedSeedLabel}" : "";
         clockText.text = $"Dia {day} - {h:00}:{m:00}{coins}";
 
         if (messageTimer > 0f)
@@ -130,9 +130,9 @@ public class DayNightCycle : MonoBehaviour
         RectTransform boxRect = box.rectTransform;
         boxRect.anchorMin = boxRect.anchorMax = boxRect.pivot = new Vector2(0.5f, 1f);
         boxRect.anchoredPosition = new Vector2(0f, -12f);
-        boxRect.sizeDelta = new Vector2(230f, 70f);
+        boxRect.sizeDelta = new Vector2(300f, 96f);
 
-        clockText = UIFactory.CreateText(box.transform, "Clock", 26, TextAlignmentOptions.Center);
+        clockText = UIFactory.CreateText(box.transform, "Clock", 22, TextAlignmentOptions.Center);
         UIFactory.Stretch(clockText.rectTransform);
 
         // Mensagens rápidas logo abaixo do relógio (embaixo fica a caixa de diálogo)
@@ -141,7 +141,7 @@ public class DayNightCycle : MonoBehaviour
         msgRect.anchorMin = new Vector2(0.5f, 1f);
         msgRect.anchorMax = new Vector2(0.5f, 1f);
         msgRect.pivot = new Vector2(0.5f, 1f);
-        msgRect.anchoredPosition = new Vector2(0f, -92f);
+        msgRect.anchoredPosition = new Vector2(0f, -116f);
         msgRect.sizeDelta = new Vector2(600f, 50f);
         messageText.text = "";
     }

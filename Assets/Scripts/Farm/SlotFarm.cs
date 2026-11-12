@@ -2,7 +2,8 @@
 using System.Collections.Generic; // Suporte para listas e dicionários genéricos
 using UnityEngine; // Biblioteca principal da Unity
 
-// Canteiro de plantação: cavar -> regar -> esperar crescer (tempo do jogo) -> colher com E
+// Canteiro de plantação: cavar -> plantar semente (E) -> regar -> esperar crescer (tempo do jogo) -> colher (E)
+// A semente plantada é a escolhida no inventário (troca com V). Ver CropDatabase.
 public class SlotFarm : MonoBehaviour
 {
     // Todos os atributos que tiver '[SerializeField]' ou 'public' é definido no inspector da Unity
@@ -23,31 +24,45 @@ public class SlotFarm : MonoBehaviour
     [SerializeField] private bool detecting; // Se está sendo regado (detecção de água)
     [Tooltip("Água acumulada por segundo enquanto é regado (antes era 0.1 por frame = 6/s a 60 FPS)")]
     [SerializeField] private float waterPerSecond = 6f;
-    [Tooltip("Horas do jogo que a cenoura leva para crescer depois de regada")]
-    [SerializeField] private float growthHours = 2f;
 
     private int inicialDigAmount; // Armazena a quantidade inicial para referência
     private float currentWater; // Quantidade atual de água acumulada
     private float growth; // Horas de crescimento já passadas
 
     PlayerItems playerItems; // Referência ao script de itens do jogador para armazenar quantidades em variáveis
+    Player player;
 
     private bool dugHole; // Se o buraco já foi cavado
-    private bool plantedCarrot; // Cenoura pronta para colher
+    private bool seeded; // Tem semente plantada
+    private int crop; // Qual planta (índice em CropDatabase.All)
+    private bool plantedCarrot; // Planta pronta para colher (o nome ficou do tempo em que só havia cenoura)
     private bool isPlayer; // É verdadeiro quando o player entra no colisor pré-setado
+
+    private SpriteRenderer plantRenderer; // Desenho da planta por cima do buraco
 
     private static readonly Color growingTint = new Color(0.8f, 1f, 0.8f); // Leve verde enquanto cresce
 
+    // Vários canteiros podem estar encostados no jogador: só o mais próximo responde ao E
+    private static readonly List<SlotFarm> candidates = new List<SlotFarm>();
+
     private bool IsWatered => currentWater >= waterAmount;
+    private float GrowthHours => CropDatabase.All[crop].growthHours;
 
     private void Awake()
     {
         inicialDigAmount = digAmount; // Salva o valor inicial da terra (no Awake para o save poder sobrescrever)
+
+        GameObject go = new GameObject("Planta");
+        go.transform.SetParent(spriteRenderer.transform, false);
+        plantRenderer = go.AddComponent<SpriteRenderer>();
+        plantRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
+        plantRenderer.sortingOrder = spriteRenderer.sortingOrder + 1;
     }
 
     private void Start()
     {
         playerItems = FindAnyObjectByType<PlayerItems>(); // Encontra o script PlayerItems na cena
+        player = FindAnyObjectByType<Player>();
     }
 
     void Update()
@@ -60,33 +75,129 @@ public class SlotFarm : MonoBehaviour
         if (detecting && !IsWatered) // Se estiver sendo regado
         {
             currentWater += waterPerSecond * Time.deltaTime; // Acumula água por segundo (independe do FPS)
+            if (IsWatered) UpdateVisual();
         }
 
-        if (IsWatered && !plantedCarrot) // Regado: cresce com o passar das horas do jogo
+        if (seeded && IsWatered && !plantedCarrot) // Regado: cresce com o passar das horas do jogo
         {
             growth += DayNightCycle.GameHoursThisFrame;
-            spriteRenderer.color = growingTint;
 
-            if (growth >= growthHours)
+            if (growth >= GrowthHours)
             {
-                spriteRenderer.sprite = carrot; // Cenoura cresceu (muda sprite)
-                spriteRenderer.color = Color.white;
-                audioSource.PlayOneShot(holeSFX);
                 plantedCarrot = true;
+                audioSource.PlayOneShot(holeSFX);
             }
+            UpdateVisual();
         }
 
-        if (GameInput.InteractPressed && plantedCarrot && isPlayer) // Se o jogador apertar E
+        if (GameInput.InteractPressed && isPlayer && (player == null || !player.isPaused))
         {
-            plantedCarrot = false; // Colheu: precisa regar de novo para crescer outra cenoura
-            audioSource.PlayOneShot(carrotSFX);
-            spriteRenderer.sprite = hole; // Volta para o sprite de buraco
-            if (playerItems.carrots < playerItems.carrotLimit)
+            candidates.Add(this);
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (candidates.Count == 0 || candidates[0] != this)
+        {
+            return;
+        }
+
+        // O primeiro da lista decide: age só o canteiro mais perto do jogador
+        SlotFarm nearest = this;
+        if (player != null)
+        {
+            float best = float.MaxValue;
+            foreach (SlotFarm s in candidates)
             {
-                playerItems.carrots++; // Dá uma cenoura ao jogador (respeitando o limite)
+                float d = Vector2.Distance(s.transform.position, player.transform.position);
+                if (d < best) { best = d; nearest = s; }
             }
-            currentWater = 0f; // Reseta a água para replantar
-            growth = 0f;
+        }
+        candidates.Clear();
+        nearest.Interact();
+    }
+
+    private void Interact()
+    {
+        if (plantedCarrot)
+        {
+            Harvest();
+        }
+        else if (!seeded)
+        {
+            Plant();
+        }
+    }
+
+    private void Plant()
+    {
+        int seed = playerItems.selectedSeed;
+        string name = CropDatabase.All[seed].name;
+        if (playerItems.seeds[seed] <= 0)
+        {
+            Message($"Sem sementes de {name} (V troca)");
+            return;
+        }
+
+        playerItems.seeds[seed]--;
+        seeded = true;
+        crop = seed;
+        growth = 0f;
+        audioSource.PlayOneShot(holeSFX);
+        UpdateVisual();
+        Message(IsWatered ? $"{name} plantado" : $"{name} plantado - agora regue");
+    }
+
+    private void Harvest()
+    {
+        if (!playerItems.AddHarvest(crop))
+        {
+            Message($"Bolsa de {CropDatabase.All[crop].name} cheia - venda ou coma");
+            return;
+        }
+
+        audioSource.PlayOneShot(carrotSFX);
+        plantedCarrot = false; // Colheu: o buraco fica pronto para outra semente
+        seeded = false;
+        currentWater = 0f; // Precisa regar de novo
+        growth = 0f;
+        UpdateVisual();
+    }
+
+    // Mostra buraco, broto, planta crescendo ou planta pronta
+    private void UpdateVisual()
+    {
+        if (!dugHole)
+        {
+            plantRenderer.sprite = null;
+            return;
+        }
+
+        bool carrotReady = plantedCarrot && crop == CropDatabase.Carrot;
+
+        spriteRenderer.sprite = carrotReady ? carrot : hole;
+        spriteRenderer.color = IsWatered && !plantedCarrot ? growingTint : Color.white; // Terra molhada fica esverdeada
+
+        if (!seeded || carrotReady)
+        {
+            plantRenderer.sprite = null;
+        }
+        else if (plantedCarrot)
+        {
+            plantRenderer.sprite = CropDatabase.ReadySprite(crop);
+        }
+        else
+        {
+            plantRenderer.sprite = growth >= GrowthHours * 0.5f ? CropDatabase.Growing : CropDatabase.Sprout;
+        }
+    }
+
+    private static void Message(string text)
+    {
+        if (DayNightCycle.Instance != null)
+        {
+            DayNightCycle.Instance.ShowMessage(text, 2.5f);
         }
     }
 
@@ -96,11 +207,13 @@ public class SlotFarm : MonoBehaviour
 
         if (digAmount <= inicialDigAmount / 2) // Quando cavou metade ou mais
         {
-            if (!dugHole)
-            {
-                spriteRenderer.sprite = hole; // Mostra o sprite de buraco
-            }
+            bool firstTime = !dugHole;
             dugHole = true; // Marca que já pode plantar
+            if (firstTime)
+            {
+                UpdateVisual(); // Mostra o sprite de buraco
+                Message("Buraco pronto - aperte E para plantar");
+            }
         }
     }
 
@@ -116,6 +229,8 @@ public class SlotFarm : MonoBehaviour
             currentWater = currentWater,
             growth = growth,
             plantedCarrot = plantedCarrot,
+            seeded = seeded,
+            crop = crop,
         };
     }
 
@@ -126,17 +241,9 @@ public class SlotFarm : MonoBehaviour
         currentWater = data.currentWater;
         growth = data.growth;
         plantedCarrot = data.plantedCarrot;
-
-        if (plantedCarrot)
-        {
-            spriteRenderer.sprite = carrot;
-            spriteRenderer.color = Color.white;
-        }
-        else if (dugHole)
-        {
-            spriteRenderer.sprite = hole;
-            spriteRenderer.color = IsWatered ? growingTint : Color.white;
-        }
+        seeded = data.seeded || data.plantedCarrot; // Save antigo: cenoura pronta não tinha "semente"
+        crop = Mathf.Clamp(data.crop, 0, CropDatabase.Count - 1);
+        UpdateVisual();
     }
 
     #endregion
