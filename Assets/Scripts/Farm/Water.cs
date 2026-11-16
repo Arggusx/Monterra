@@ -2,27 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Water : MonoBehaviour
+// Área de pegar água na beira do lago. Com a vara de pesca na mão, o E pesca aqui também.
+public class Water : MonoBehaviour, IInteractable
 {
     [SerializeField] private bool detectingPlayer; // Verifica se o jogador está na área de detecção
     [SerializeField] private int waterValue; // Quantidade de água que será adicionada
 
-    private PlayerItems player; // Referência ao script PlayerItems
+    public float FillValue => waterValue;
 
-    // Start é chamado antes do primeiro frame
-    void Start()
-    {
-        player = FindAnyObjectByType<PlayerItems>(); // Encontra o objeto com o script em PlayerItems na cena
-    }
+    private void OnEnable() => Interactables.Register(this);
+    private void OnDisable() => Interactables.Unregister(this);
 
-    // Update é chamado a cada frame
-    void Update()
-    {
-        if (detectingPlayer && GameInput.InteractPressed) // Se o jogador estiver na área e apertar E
-        {
-            player.WaterLimit(waterValue); // Adiciona água ao inventário do jogador
-        }
-    }
+    #region Interação (E)
+
+    public bool CanInteract(Player p) => detectingPlayer;
+
+    public string GetPrompt(Player p) => LakeInteraction.Prompt(p, LakeInteraction.Action.Fill);
+
+    public Vector2 InteractPoint(Player p) => p.transform.position;
+
+    public void Interact(Player p) => LakeInteraction.Do(p, LakeInteraction.Action.Fill, waterValue);
+
+    #endregion
 
     void OnTriggerEnter2D(Collider2D collision) // Quando algo entra no gatilho
     {

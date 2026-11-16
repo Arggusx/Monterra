@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class House : MonoBehaviour
+public class House : MonoBehaviour, IInteractable
 {
     [Header("Amounts")]
     [SerializeField] private int woodAmount;
@@ -32,20 +32,41 @@ public class House : MonoBehaviour
         playerItems = player.GetComponent<PlayerItems>();
     }
 
+    private void OnEnable() => Interactables.Register(this);
+    private void OnDisable() => Interactables.Unregister(this);
+
+    #region Interação (E)
+
+    public bool CanInteract(Player p) => detectingPlayer && !isBegining && !isBuilt;
+
+    public string GetPrompt(Player p) => $"Construir casa ({playerItems.totalWood}/{woodAmount} madeira)";
+
+    public Vector2 InteractPoint(Player p) => p.transform.position;
+
+    // Começa a construção se o jogador tiver a madeira necessária
+    public void Interact(Player p)
+    {
+        if (!playerItems.Spend(ItemIds.Wood, woodAmount))
+        {
+            if (DayNightCycle.Instance != null)
+            {
+                DayNightCycle.Instance.ShowMessage($"Precisa de {woodAmount} madeira", 2f);
+            }
+            return;
+        }
+
+        isBegining = true;
+        timeCount = 0f;
+        playerAnim.OnHammeringStarted(); // Começa a animação de martelar
+        houseSprite.color = startColor;
+        player.transform.position = point.position; // Move o player para um objeto vazio transparente
+        player.isPaused = true; // Não pode se mover enquanto estiver construindo
+    }
+
+    #endregion
+
     void Update()
     {
-        // Inicializa a construção se: detectar player na área de colisão e apertar tecla 'E' e a
-        // quantidade de madeira que coletei for maior ou igual a quantidade setada
-        if (detectingPlayer && !isBegining && !isBuilt && GameInput.InteractPressed && playerItems.Spend(ItemIds.Wood, woodAmount))
-        {
-            isBegining = true;
-            timeCount = 0f;
-            playerAnim.OnHammeringStarted(); // Começa a animação de martelar
-            houseSprite.color = startColor;
-            player.transform.position = point.position; // Move o player para um objeto vazio transparente
-            Debug.Log("Construindo!!");
-            player.isPaused = true; // /Não pode se mover enquanto estiver construindo
-        }
         if (isBegining)
         {
             timeCount += Time.deltaTime; // Conta o tempo em segundos desde o ultimo frame

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NPC_Dialogue : MonoBehaviour
+public class NPC_Dialogue : MonoBehaviour, IInteractable
 {
 
     public float dialogueRange; // Alcance em que o jogador pode interagir com o NPC   
@@ -23,14 +23,34 @@ public class NPC_Dialogue : MonoBehaviour
         GetNPCInfo();
     }
 
-    void Update()
+    private void OnEnable() => Interactables.Register(this);
+    private void OnDisable() => Interactables.Unregister(this);
+
+    #region Interação (E)
+
+    // A Jasmine vira loja depois da primeira conversa (ver ShopUI)
+    private bool IsOpenShop => ShopUI.Instance != null && ShopUI.Instance.IsShopOf(this);
+
+    public bool CanInteract(Player p) => playerHit;
+
+    public string GetPrompt(Player p) => IsOpenShop ? "Abrir loja" : "Falar";
+
+    public Vector2 InteractPoint(Player p) => transform.position;
+
+    public void Interact(Player p)
     {
-        if (GameInput.InteractPressed && playerHit)  // Verifica se o jogador apertou a tecla 'E' e está perto do NPC para iniciar o diálogo
+        if (IsOpenShop)
+        {
+            ShopUI.Instance.Open();
+        }
+        else
         {
             // Chama o método que inicia o diálogo, passando as frases como array
             DialogueControl.instance.Speech(sentences.ToArray(), actorName.ToArray(), actorSprite.ToArray());
         }
     }
+
+    #endregion
 
     // Método para coletar as frases em português do diálogo do NPC e armazená-las na lista
     void GetNPCInfo()

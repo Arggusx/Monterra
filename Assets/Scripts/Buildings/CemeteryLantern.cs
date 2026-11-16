@@ -4,7 +4,7 @@ using UnityEngine;
 // Lanterna do Cemiterio da Colina. Chegue perto e aperte E (gasta 1 madeira) para acender.
 // Cada lanterna acesa diminui os esqueletos à noite. Com todas acesas, o jogador acha
 // a primeira página do diário do avô (ver docs/LORE.md).
-public class CemeteryLantern : MonoBehaviour
+public class CemeteryLantern : MonoBehaviour, IInteractable
 {
     public static readonly List<CemeteryLantern> All = new List<CemeteryLantern>();
 
@@ -19,7 +19,7 @@ public class CemeteryLantern : MonoBehaviour
     private LightOverlay.Light core; // Centro claro em volta da chama
     private Player player;
     private PlayerItems items;
-    private bool playerWasNear;
+    private bool playerNear;
 
     public bool IsLit { get; private set; }
 
@@ -38,11 +38,13 @@ public class CemeteryLantern : MonoBehaviour
     private void OnEnable()
     {
         All.Add(this);
+        Interactables.Register(this);
     }
 
     private void OnDisable()
     {
         All.Remove(this);
+        Interactables.Unregister(this);
     }
 
     private void Start()
@@ -66,23 +68,21 @@ public class CemeteryLantern : MonoBehaviour
             halo.radius = lightRadius * (0.96f + flicker * 0.06f);
         }
 
-        if (player == null || items == null || player.isDead)
-        {
-            return;
-        }
-
-        bool near = Vector2.Distance(player.transform.position, transform.position) <= interactRadius;
-        if (near && !playerWasNear && !IsLit)
-        {
-            Message($"E: acender lanterna ({woodCost} madeira)");
-        }
-        playerWasNear = near;
-
-        if (near && !IsLit && !player.isPaused && GameInput.InteractPressed)
-        {
-            TryLight();
-        }
+        playerNear = player != null && items != null
+            && Vector2.Distance(player.transform.position, transform.position) <= interactRadius;
     }
+
+    #region Interação (E)
+
+    public bool CanInteract(Player p) => playerNear && !IsLit;
+
+    public string GetPrompt(Player p) => $"Acender lanterna ({woodCost} madeira)";
+
+    public Vector2 InteractPoint(Player p) => transform.position;
+
+    public void Interact(Player p) => TryLight();
+
+    #endregion
 
     private void TryLight()
     {

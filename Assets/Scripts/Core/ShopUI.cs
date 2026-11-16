@@ -6,7 +6,8 @@ using UnityEngine.UI;
 
 // Loja da Jasmine: compra de sementes e venda da colheita.
 // Na primeira vez que o jogador fala com ela, toca o diálogo normal (que apresenta a loja).
-// Depois disso, apertar E perto dela abre a loja. Criada automaticamente pelo GameSystems.
+// Depois disso, o E perto dela abre a loja (quem chama é o NPC_Dialogue, pelo PlayerInteractor).
+// Criada automaticamente pelo GameSystems.
 public class ShopUI : MonoBehaviour
 {
     public const string ShopkeeperName = "Jasmine";
@@ -25,8 +26,6 @@ public class ShopUI : MonoBehaviour
     private NPC_Dialogue shopkeeperDialogue;
     private bool pausedByShop;
     private bool wasTalking;
-    private bool wasNear;
-    private int closedFrame = -1;
 
     // Já ouviu a apresentação da Jasmine (salvo no save)
     public bool Unlocked { get; set; }
@@ -82,22 +81,10 @@ public class ShopUI : MonoBehaviour
             Message("Loja liberada! Fale com a Jasmine para comprar sementes");
         }
         wasTalking = talking;
-
-        // Com a loja liberada, o E abre a loja em vez de repetir o diálogo
-        shopkeeperDialogue.enabled = !Unlocked;
-
-        if (Unlocked && near && !wasNear)
-        {
-            Message("E: loja da Jasmine");
-        }
-        wasNear = near;
-
-        if (Unlocked && near && !talking && !player.isPaused && !player.isDead
-            && Time.frameCount != closedFrame && GameInput.InteractPressed)
-        {
-            Open();
-        }
     }
+
+    // Este NPC é a vendedora e a loja já foi liberada? Então o E abre a loja em vez do diálogo.
+    public bool IsShopOf(NPC_Dialogue npc) => Unlocked && npc == shopkeeperDialogue;
 
     // Esc ou B (Bolinha) fecham a loja
     private static bool CancelPressed()
@@ -107,8 +94,13 @@ public class ShopUI : MonoBehaviour
         return (kb != null && kb.escapeKey.wasPressedThisFrame) || (pad != null && pad.buttonEast.wasPressedThisFrame);
     }
 
-    private void Open()
+    public void Open()
     {
+        if (IsOpen || player == null || player.isPaused || player.isDead)
+        {
+            return;
+        }
+
         panel.SetActive(true);
         player.isPaused = true;
         pausedByShop = true;
@@ -122,7 +114,6 @@ public class ShopUI : MonoBehaviour
     private void Close()
     {
         panel.SetActive(false);
-        closedFrame = Time.frameCount;
         if (pausedByShop)
         {
             player.isPaused = false;

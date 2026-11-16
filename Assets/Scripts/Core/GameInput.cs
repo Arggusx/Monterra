@@ -90,6 +90,10 @@ public static class GameInput
         (Kb != null && Kb.eKey.wasPressedThisFrame) ||
         (Pad != null && Pad.buttonSouth.wasPressedThisFrame);
 
+    // Rótulo do botão de interagir para o indicador na tela: "A" se o controle foi usado por último
+    public static string InteractLabel =>
+        Pad != null && (Kb == null || Pad.lastUpdateTime > Kb.lastUpdateTime) ? "A" : "E";
+
     public static bool EatFishPressed =>
         (Kb != null && Kb.fKey.wasPressedThisFrame) ||
         (Pad != null && Pad.buttonNorth.wasPressedThisFrame);

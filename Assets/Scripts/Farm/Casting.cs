@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Casting : MonoBehaviour
+// Área de pesca na beira do lago. Com o balde na mão, o E enche o balde aqui também.
+public class Casting : MonoBehaviour, IInteractable
 {
     [SerializeField] private GameObject fishPrefab;
     [SerializeField] private int percentage; // Chance do jogador cpnseguir pegar um peixe
@@ -12,7 +13,10 @@ public class Casting : MonoBehaviour
     private PlayerItems playerItems; // Referência ao script PlayerItems
     private PlayerAnim playerAnim;
     private Player player;
+    private float fillValue = 25f; // Água por balde quando o jogador enche aqui (copiado de uma área de água)
 
+    private void OnEnable() => Interactables.Register(this);
+    private void OnDisable() => Interactables.Unregister(this);
 
     // Start é chamado antes do primeiro frame
     void Start()
@@ -20,17 +24,25 @@ public class Casting : MonoBehaviour
         playerItems = FindAnyObjectByType<PlayerItems>(); // Encontra o objeto com o script PlayerItems na cena
         playerAnim = playerItems.GetComponent<PlayerAnim>();
         player = playerItems.GetComponent<Player>();
-    }
 
-    // Update é chamado a cada frame
-    void Update()
-    {
-        // Se o jogador estiver na área, apertar E e não estiver ocupado (pausado/morto)
-        if (detectingPlayer && GameInput.InteractPressed && !player.isPaused && !player.isDead)
+        Water water = FindAnyObjectByType<Water>();
+        if (water != null)
         {
-            playerAnim.OnCastingStarded();
+            fillValue = water.FillValue;
         }
     }
+
+    #region Interação (E)
+
+    public bool CanInteract(Player p) => detectingPlayer;
+
+    public string GetPrompt(Player p) => LakeInteraction.Prompt(p, LakeInteraction.Action.Fish);
+
+    public Vector2 InteractPoint(Player p) => p.transform.position;
+
+    public void Interact(Player p) => LakeInteraction.Do(p, LakeInteraction.Action.Fish, fillValue);
+
+    #endregion
 
     public void OnCasting()
     {

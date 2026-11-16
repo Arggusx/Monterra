@@ -14,6 +14,12 @@ public static class ItemIds
     public static string Seed(int crop) => "seed_" + CropDatabase.All[crop].id; // "seed_carrot"...
 }
 
+// Valores de Player.handlingObj (e de ItemData.toolIndex)
+public static class ToolIndex
+{
+    public const int Axe = 0, Shovel = 1, Bucket = 2, Sword = 3, Rod = 4;
+}
+
 // Catálogo de todos os itens do jogo, consultado por id (Dictionary: busca em O(1)).
 // Os itens básicos nascem aqui por código, com ícone desenhado pixel a pixel (mesmo esquema do CropDatabase).
 // Qualquer ItemData salvo em Assets/Resources/Items entra no catálogo e substitui o básico de mesmo id.

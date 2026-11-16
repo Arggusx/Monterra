@@ -4,7 +4,7 @@ using UnityEngine; // Biblioteca principal da Unity
 
 // Canteiro de plantação: cavar -> plantar semente (E) -> regar -> esperar crescer (tempo do jogo) -> colher (E)
 // A semente plantada é a escolhida no inventário (troca com V). Ver CropDatabase.
-public class SlotFarm : MonoBehaviour
+public class SlotFarm : MonoBehaviour, IInteractable
 {
     // Todos os atributos que tiver '[SerializeField]' ou 'public' é definido no inspector da Unity
     [Header("Audio")]
@@ -42,9 +42,6 @@ public class SlotFarm : MonoBehaviour
 
     private static readonly Color growingTint = new Color(0.8f, 1f, 0.8f); // Leve verde enquanto cresce
 
-    // Vários canteiros podem estar encostados no jogador: só o mais próximo responde ao E
-    private static readonly List<SlotFarm> candidates = new List<SlotFarm>();
-
     private bool IsWatered => currentWater >= waterAmount;
     private float GrowthHours => CropDatabase.All[crop].growthHours;
 
@@ -58,6 +55,9 @@ public class SlotFarm : MonoBehaviour
         plantRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
         plantRenderer.sortingOrder = spriteRenderer.sortingOrder + 1;
     }
+
+    private void OnEnable() => Interactables.Register(this);
+    private void OnDisable() => Interactables.Unregister(this);
 
     private void Start()
     {
@@ -89,36 +89,19 @@ public class SlotFarm : MonoBehaviour
             }
             UpdateVisual();
         }
-
-        if (GameInput.InteractPressed && isPlayer && (player == null || !player.isPaused))
-        {
-            candidates.Add(this);
-        }
     }
 
-    private void LateUpdate()
-    {
-        if (candidates.Count == 0 || candidates[0] != this)
-        {
-            return;
-        }
+    #region Interação (E)
 
-        // O primeiro da lista decide: age só o canteiro mais perto do jogador
-        SlotFarm nearest = this;
-        if (player != null)
-        {
-            float best = float.MaxValue;
-            foreach (SlotFarm s in candidates)
-            {
-                float d = Vector2.Distance(s.transform.position, player.transform.position);
-                if (d < best) { best = d; nearest = s; }
-            }
-        }
-        candidates.Clear();
-        nearest.Interact();
-    }
+    // Vários canteiros podem estar encostados no jogador: o PlayerInteractor escolhe o que está à frente dele
+    public bool CanInteract(Player p) => isPlayer && dugHole && (plantedCarrot || !seeded);
 
-    private void Interact()
+    public string GetPrompt(Player p) =>
+        plantedCarrot ? "Colher " + CropDatabase.All[crop].name : "Plantar " + playerItems.SelectedSeedLabel;
+
+    public Vector2 InteractPoint(Player p) => transform.position;
+
+    public void Interact(Player p)
     {
         if (plantedCarrot)
         {
@@ -129,6 +112,8 @@ public class SlotFarm : MonoBehaviour
             Plant();
         }
     }
+
+    #endregion
 
     private void Plant()
     {
@@ -211,7 +196,7 @@ public class SlotFarm : MonoBehaviour
             if (firstTime)
             {
                 UpdateVisual(); // Mostra o sprite de buraco
-                Message("Buraco pronto - aperte E para plantar");
+                Message("Buraco pronto para plantar");
             }
         }
     }

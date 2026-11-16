@@ -24,9 +24,15 @@ public static class GameSystems
     {
         FixEventSystem();
 
-        if (Object.FindAnyObjectByType<Player>() == null)
+        Player player = Object.FindAnyObjectByType<Player>();
+        if (player == null)
         {
             return; // Cenas sem jogador (menus, testes) não precisam dos sistemas
+        }
+
+        if (player.GetComponent<PlayerInteractor>() == null)
+        {
+            player.gameObject.AddComponent<PlayerInteractor>(); // Único leitor da tecla E no mundo
         }
 
         if (Object.FindAnyObjectByType<DayNightCycle>() != null)
