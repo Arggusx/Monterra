@@ -29,7 +29,8 @@ public class ItemStack
 // e, mais para frente, para baús. Quem desenha na tela é o InventoryUI, que escuta OnChanged.
 public class Inventory
 {
-    public const int DefaultSize = 24; // 3 fileiras de 8; a primeira fileira vai virar a hotbar
+    public const int DefaultSize = 24; // 3 fileiras de 8
+    public const int HotbarSize = 8;   // Os primeiros slots são a barra rápida (teclas 1 a 8)
 
     private readonly ItemStack[] slots;
 

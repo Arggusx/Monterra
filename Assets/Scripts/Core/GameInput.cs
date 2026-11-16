@@ -14,12 +14,10 @@ using UnityEngine.InputSystem;
 // F              -> comer peixe          | Y (Triângulo)
 // G              -> comer cenoura        | (pelo inventário)
 // I / Tab        -> inventário           | Select / Back (Share)
-// Q R X Z C ou 1-5 -> trocar ferramenta  | LB / RB (L1 / R1)
+// 1 a 8 ou scroll -> barra rápida        | LB / RB (L1 / R1)
 // F5 / F9        -> salvar / carregar    | -
 public static class GameInput
 {
-    public const int ToolCount = 5; // Machado, pá, balde, espada, vara de pesca
-
     private static Keyboard Kb => Keyboard.current;
     private static Mouse Ms => Mouse.current;
     private static Gamepad Pad => Gamepad.current;
@@ -116,24 +114,36 @@ public static class GameInput
 
     #endregion
 
-    #region Ferramentas
+    #region Barra rápida
 
-    // Retorna a ferramenta escolhida neste frame ou -1 se nenhuma tecla foi apertada
-    public static int ToolSelected(int currentTool)
+    // Retorna o slot da barra rápida escolhido neste frame ou -1 se nada mudou
+    public static int HotbarSelected(int current)
     {
+        const int size = Inventory.HotbarSize;
+
         if (Kb != null)
         {
-            if (Kb.qKey.wasPressedThisFrame || Kb.digit1Key.wasPressedThisFrame) return 0; // Machado
-            if (Kb.rKey.wasPressedThisFrame || Kb.digit2Key.wasPressedThisFrame) return 1; // Pá
-            if (Kb.xKey.wasPressedThisFrame || Kb.digit3Key.wasPressedThisFrame) return 2; // Balde
-            if (Kb.zKey.wasPressedThisFrame || Kb.digit4Key.wasPressedThisFrame) return 3; // Espada
-            if (Kb.cKey.wasPressedThisFrame || Kb.digit5Key.wasPressedThisFrame) return 4; // Vara de pesca
+            if (Kb.digit1Key.wasPressedThisFrame) return 0;
+            if (Kb.digit2Key.wasPressedThisFrame) return 1;
+            if (Kb.digit3Key.wasPressedThisFrame) return 2;
+            if (Kb.digit4Key.wasPressedThisFrame) return 3;
+            if (Kb.digit5Key.wasPressedThisFrame) return 4;
+            if (Kb.digit6Key.wasPressedThisFrame) return 5;
+            if (Kb.digit7Key.wasPressedThisFrame) return 6;
+            if (Kb.digit8Key.wasPressedThisFrame) return 7;
+        }
+
+        if (Ms != null)
+        {
+            float scroll = Ms.scroll.ReadValue().y; // Para cima = slot anterior, para baixo = próximo
+            if (scroll > 0f) return (current + size - 1) % size;
+            if (scroll < 0f) return (current + 1) % size;
         }
 
         if (Pad != null)
         {
-            if (Pad.rightShoulder.wasPressedThisFrame) return (currentTool + 1) % ToolCount;
-            if (Pad.leftShoulder.wasPressedThisFrame) return (currentTool + ToolCount - 1) % ToolCount;
+            if (Pad.rightShoulder.wasPressedThisFrame) return (current + 1) % size;
+            if (Pad.leftShoulder.wasPressedThisFrame) return (current + size - 1) % size;
         }
 
         return -1;

@@ -24,6 +24,9 @@ public class PlayerItems : MonoBehaviour
     public int selectedSeed; // Índice em CropDatabase.All: semente que vai ser plantada ao apertar E num buraco
     public int startCarrotSeeds = 5; // Jogo novo começa com algumas sementes de cenoura
 
+    [Header("Barra rápida")]
+    public int hotbarSlot; // Slot da primeira fileira do inventário que está na mão (0 a 7)
+
     private Inventory inventory;
 
     // Criado na primeira vez que alguém pede, para não depender da ordem dos Awake
@@ -37,6 +40,7 @@ public class PlayerItems : MonoBehaviour
     private void Awake()
     {
         selectedSeed = Mathf.Clamp(selectedSeed, 0, CropDatabase.Count - 1);
+        EnsureTools(); // Primeiro: num jogo novo as ferramentas ocupam os slots 1 a 5
         if (SeedCount(CropDatabase.Carrot) == 0)
         {
             AddSeed(CropDatabase.Carrot, startCarrotSeeds);
@@ -62,6 +66,47 @@ public class PlayerItems : MonoBehaviour
         int earned = Inventory.RemoveAt(slot, amount) * item.sellPrice;
         coins += earned;
         return earned;
+    }
+
+    #endregion
+
+    #region Barra rápida
+
+    // Item que está na mão (null se o slot escolhido estiver vazio)
+    public ItemData SelectedItem => ItemDatabase.Get(Inventory.GetSlot(hotbarSlot).id);
+
+    // Ferramenta na mão no formato antigo do Player.handlingObj; -1 se não for ferramenta
+    public int SelectedTool
+    {
+        get
+        {
+            ItemData item = SelectedItem;
+            return item != null && item.category == ItemCategory.Tool ? item.toolIndex : -1;
+        }
+    }
+
+    public void SelectHotbar(int slot)
+    {
+        hotbarSlot = Mathf.Clamp(slot, 0, Inventory.HotbarSize - 1);
+
+        // Segurar uma semente já a escolhe para plantar
+        ItemData item = SelectedItem;
+        if (item != null && item.category == ItemCategory.Seed)
+        {
+            selectedSeed = item.cropIndex;
+        }
+    }
+
+    // As ferramentas não se perdem: repõe as que faltarem (jogo novo e saves de antes da barra rápida)
+    public void EnsureTools()
+    {
+        foreach (string tool in ItemIds.Tools)
+        {
+            if (!Inventory.Has(tool))
+            {
+                Inventory.Add(tool);
+            }
+        }
     }
 
     #endregion

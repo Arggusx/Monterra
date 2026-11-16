@@ -119,11 +119,20 @@ public class Player : MonoBehaviour
 
         if (!isPaused)
         {
-            // Troca o item nas mãos (Q R X Z C, teclas 1-5 ou LB/RB no controle)
-            int tool = GameInput.ToolSelected(handlingObj);
-            if (tool >= 0)
+            // Troca o slot da barra rápida (teclas 1 a 8, scroll do mouse ou LB/RB no controle)
+            int slot = GameInput.HotbarSelected(playerItems.hotbarSlot);
+            if (slot >= 0)
             {
-                handlingObj = tool; // 0 machado, 1 pá, 2 balde, 3 espada, 4 vara de pesca
+                playerItems.SelectHotbar(slot);
+            }
+
+            // 0 machado, 1 pá, 2 balde, 3 espada, 4 vara de pesca; -1 se o item na mão não é ferramenta
+            handlingObj = playerItems.SelectedTool;
+
+            // Com comida na mão, o botão de usar come
+            if (handlingObj < 0 && GameInput.ActionPressed)
+            {
+                EatFromSlot(playerItems.hotbarSlot);
             }
 
             if (GameInput.EatFishPressed)

@@ -36,6 +36,10 @@ public class ItemData : ScriptableObject
     [Tooltip("Índice em CropDatabase.All; -1 se o item não é semente nem colheita")]
     public int cropIndex = -1;
 
+    [Header("Ferramenta")]
+    [Tooltip("0 machado, 1 pá, 2 balde, 3 espada, 4 vara de pesca; -1 se não é ferramenta")]
+    public int toolIndex = -1;
+
     public bool IsEdible => hungerRestore > 0f || healthRestore > 0f || staminaRestore > 0f;
     public bool IsSellable => sellPrice > 0;
 }

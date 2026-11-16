@@ -7,6 +7,9 @@ public static class ItemIds
     public const string Wood = "wood";
     public const string Fish = "fish";
 
+    // Ferramentas, na ordem do Player.handlingObj: 0 machado, 1 pá, 2 balde, 3 espada, 4 vara de pesca
+    public static readonly string[] Tools = { "tool_axe", "tool_shovel", "tool_bucket", "tool_sword", "tool_rod" };
+
     public static string Crop(int crop) => CropDatabase.All[crop].id;       // "carrot", "wheat"...
     public static string Seed(int crop) => "seed_" + CropDatabase.All[crop].id; // "seed_carrot"...
 }
@@ -57,6 +60,26 @@ public static class ItemDatabase
 
         items = new Dictionary<string, ItemData>();
         ordered = new List<ItemData>();
+
+        string[] toolNames = { "Machado", "Pa", "Balde", "Espada", "Vara de pesca" };
+        string[] toolTexts =
+        {
+            "Corta arvores. Segure o botao de usar perto de uma.",
+            "Cava buracos para plantar.",
+            "Encha no lago com E e regue as plantas.",
+            "Ataca os esqueletos.",
+            "Use E na beira do lago para pescar."
+        };
+        string[][] toolArts = { AxeArt, ShovelArt, BucketArt, SwordArt, RodArt };
+        for (int i = 0; i < ItemIds.Tools.Length; i++)
+        {
+            // O HotbarUI troca este ícone pelo sprite da ferramenta que já existe no HUD da cena
+            ItemData tool = Create(ItemIds.Tools[i], toolNames[i], toolTexts[i], ItemCategory.Tool, 0,
+                CropDatabase.Build(toolArts[i], "Icone_" + toolNames[i]));
+            tool.maxStack = 1;
+            tool.toolIndex = i;
+            Register(tool);
+        }
 
         Register(Create(ItemIds.Wood, "Madeira", "Tronco cortado. Serve para construir e acender lanternas.",
             ItemCategory.Resource, 2, CropDatabase.Build(WoodArt, "Icone_Madeira")));
@@ -205,6 +228,106 @@ public static class ItemDatabase
         "...SwwwwwwwwS...",
         "....SwwwwwwS....",
         ".....SSSSSS.....",
+        "................",
+        "................",
+        "................"
+    };
+
+    private static readonly string[] AxeArt =
+    {
+        "................",
+        ".........SSS....",
+        "........SsssS...",
+        ".......BSsssS...",
+        "......BbSssS....",
+        ".....BbB.SS.....",
+        "....BbB.........",
+        "...BbB..........",
+        "..BbB...........",
+        "..BB............",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................"
+    };
+
+    private static readonly string[] ShovelArt =
+    {
+        "................",
+        "............BB..",
+        "...........BbB..",
+        "..........BbB...",
+        ".........BbB....",
+        "........BbB.....",
+        ".......BbB......",
+        "....S.BbB.......",
+        "...SsSbB........",
+        "..SsssS.........",
+        "..SsssS.........",
+        "...SSS..........",
+        "................",
+        "................",
+        "................",
+        "................"
+    };
+
+    private static readonly string[] BucketArt =
+    {
+        "................",
+        "................",
+        "....SSSSSSSS....",
+        "...S........S...",
+        "..SSSSSSSSSSSS..",
+        "..SccccccccccS..",
+        "..SssssssssssS..",
+        "...SssssssssS...",
+        "...SssssssssS...",
+        "...SssssssssS...",
+        "....SssssssS....",
+        "....SSSSSSSS....",
+        "................",
+        "................",
+        "................",
+        "................"
+    };
+
+    private static readonly string[] SwordArt =
+    {
+        "................",
+        ".............sS.",
+        "............swS.",
+        "...........swS..",
+        "..........swS...",
+        ".........swS....",
+        "........swS.....",
+        "...B...swS......",
+        "...BB.swS.......",
+        "....BBwS........",
+        "....bBB.........",
+        "...bb.BB........",
+        "..bb............",
+        "................",
+        "................",
+        "................"
+    };
+
+    private static readonly string[] RodArt =
+    {
+        "................",
+        ".............B..",
+        "............Bk..",
+        "...........B.k..",
+        "..........B..k..",
+        ".........B...k..",
+        "........B....k..",
+        ".......B.....k..",
+        "......B......k..",
+        ".....B.......c..",
+        "....B...........",
+        "...bB...........",
+        "..bb............",
         "................",
         "................",
         "................"

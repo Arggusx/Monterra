@@ -20,7 +20,7 @@ public class SaveData
     // Jogador
     public float posX, posY;
     public float health, stamina, hunger;
-    public int handlingObj;
+    public int hotbarSlot; // Slot da barra rápida que estava na mão
 
     // Itens
     public List<ItemStack> inventory = new List<ItemStack>(); // Slots do inventário, na ordem
@@ -134,7 +134,7 @@ public class SaveSystem : MonoBehaviour
             health = player.currentHealthPlayer,
             stamina = player.currentStamina,
             hunger = player.currentHunger,
-            handlingObj = player.handlingObj,
+            hotbarSlot = items.hotbarSlot,
             inventory = items.Inventory.ToSaveList(),
             coins = items.coins,
             water = items.currentWater,
@@ -234,7 +234,8 @@ public class SaveSystem : MonoBehaviour
         player.currentHealthPlayer = data.health > 0 ? data.health : player.totalHealthPlayer;
         player.currentStamina = data.stamina;
         player.currentHunger = data.hunger;
-        player.handlingObj = data.handlingObj;
+        items.EnsureTools(); // Saves de antes da barra rápida não tinham as ferramentas como item
+        items.SelectHotbar(data.hotbarSlot);
 
         if (DayNightCycle.Instance != null && data.day > 0)
         {
@@ -293,6 +294,7 @@ public class SaveSystem : MonoBehaviour
         int startSeeds = inv.Count(ItemIds.Seed(CropDatabase.Carrot));
 
         inv.Clear();
+        items.EnsureTools(); // Ferramentas nos primeiros slots, como num jogo novo
         inv.Add(ItemIds.Wood, data.wood);
         inv.Add(ItemIds.Fish, data.fishes);
         inv.Add(ItemIds.Crop(CropDatabase.Carrot), data.carrots);

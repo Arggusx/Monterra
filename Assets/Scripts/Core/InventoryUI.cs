@@ -17,6 +17,7 @@ public class InventoryUI : MonoBehaviour
     private const float Gap = 6f;
 
     private static readonly Color SlotColor = new Color(0.25f, 0.18f, 0.12f, 0.95f);
+    private static readonly Color HotbarColor = new Color(0.36f, 0.27f, 0.17f, 0.95f); // Primeira fileira
     private static readonly Color SelectedColor = new Color(0.62f, 0.45f, 0.22f, 1f);
     private static readonly Color MoveColor = new Color(0.30f, 0.52f, 0.30f, 1f);
     private const string Gold = "#FFD98C";
@@ -275,7 +276,8 @@ public class InventoryUI : MonoBehaviour
 
         for (int i = 0; i < slots.Count; i++)
         {
-            Color color = i == moveFrom ? MoveColor : i == selected ? SelectedColor : SlotColor;
+            Color color = i == moveFrom ? MoveColor : i == selected ? SelectedColor
+                : i < Inventory.HotbarSize ? HotbarColor : SlotColor;
             slots[i].Show(inventory.GetSlot(i), color);
         }
 
@@ -322,7 +324,7 @@ public class InventoryUI : MonoBehaviour
             $"Moedas: {items.coins}     Agua: {Mathf.FloorToInt(items.currentWater)} / {items.waterLimit}\n" +
             $"Nivel {items.currentLevel}     Fome: {Mathf.CeilToInt(player.currentHunger)} / {player.maxHunger}\n" +
             $"Plantando: {items.SelectedSeedLabel} (V troca)\n" +
-            $"<color={Gold}>Arraste um item para mudar de lugar</color>";
+            $"<color={Gold}>Arraste para organizar. A primeira fileira e a barra rapida (1 a 8)</color>";
     }
 
     private void RefreshTooltip()

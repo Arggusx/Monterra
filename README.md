@@ -37,7 +37,7 @@ Funciona com **teclado e mouse** ou **controle** (Xbox / PlayStation).
 | Usar ferramenta (cortar, cavar, regar, atacar) | Botão esquerdo do mouse | X (Quadrado) ou RT (R2) |
 | Rolar | Botão direito do mouse | B (Bolinha) |
 | Interagir: pescar, pegar água, colher, construir, falar, avançar diálogo | E | A (X do PlayStation) |
-| Machado / pá / balde / espada / vara de pesca | Q / R / X / Z / C ou 1 a 5 | LB / RB trocam |
+| Barra rápida (machado, pá, balde, espada, vara de pesca e o que mais estiver na primeira fileira do inventário) | 1 a 8 ou scroll do mouse | LB / RB trocam |
 | Comer peixe | F | Y (Triângulo) |
 | Comer cenoura | G | pelo inventário |
 | Inventário (comer e vender itens) | I ou Tab | Select / Share |
@@ -60,6 +60,7 @@ Funciona com **teclado e mouse** ou **controle** (Xbox / PlayStation).
 
 O jogo novo começa com 5 sementes de cenoura. As plantas novas são desenhadas por código em `Assets/Scripts/Farm/CropDatabase.cs`.
 - **Inventário e moedas:** 24 slots com pilhas de até 99. Arraste um item para outro slot para organizar (no controle, use o botão **Mover**). Clique num item para comer, vender ou escolher a semente de plantio; passe o mouse para ver a descrição. Peixe vale 8, madeira 2 e cada colheita o preço da tabela acima. Com o inventário cheio, os itens ficam no chão.
+- **Barra rápida:** a primeira fileira do inventário aparece na parte de baixo da tela. Com uma ferramenta na mão, o botão de usar funciona como antes; com comida, come; com uma semente, ela vira a semente de plantio. Organize a barra arrastando os itens no inventário.
 - **Itens:** cada item é um `ItemData` (`Assets/Scripts/Items`). Os básicos são criados por código em `ItemDatabase.cs`. Para criar um item pelo Editor, use **Create > Monterra > Item** e salve em `Assets/Resources/Items`; um asset com o mesmo `id` substitui o básico.
 - **Salvamento:** automático a cada novo dia e ao fechar o jogo; carrega sozinho ao abrir. Para recomeçar, use o menu **Monterra > Apagar save** no Editor.
 - **Esqueletos:** aparecem em lugares aleatórios dos campos, longe da vila e do jogador. De dia são até 3; à noite (20h às 6h), até 7. Quando morrem, voltam em outro lugar.

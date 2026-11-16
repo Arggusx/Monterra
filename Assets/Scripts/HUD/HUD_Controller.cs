@@ -26,6 +26,34 @@ public class HUD_Controller : MonoBehaviour
     private PlayerItems playerItems;
     private Player player;
 
+    // Sprite da ferramenta no HUD antigo (vira o ícone do item na barra rápida); null se não existir
+    public Sprite ToolSprite(int tool) =>
+        tool >= 0 && tool < toolsUI.Count && toolsUI[tool] != null ? toolsUI[tool].sprite : null;
+
+    // A barra rápida substitui os ícones de ferramenta antigos
+    public void HideLegacyTools()
+    {
+        Transform group = null; // Grupo que contém todos os ícones (com a moldura), se for o mesmo para todos
+        bool sameGroup = true;
+
+        foreach (Image tool in toolsUI)
+        {
+            if (tool == null)
+            {
+                continue;
+            }
+
+            tool.gameObject.SetActive(false);
+            if (group == null) group = tool.transform.parent;
+            else if (tool.transform.parent != group) sameGroup = false;
+        }
+
+        if (group != null && sameGroup && group.GetComponent<Canvas>() == null)
+        {
+            group.gameObject.SetActive(false);
+        }
+    }
+
     private void Awake() // Chamado antes do 'Start' para evitar bugs
     {
         playerItems = FindAnyObjectByType<PlayerItems>();
