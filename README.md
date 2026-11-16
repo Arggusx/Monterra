@@ -59,7 +59,8 @@ Funciona com **teclado e mouse** ou **controle** (Xbox / PlayStation).
 | Abóbora | 10 | 28 | 10 |
 
 O jogo novo começa com 5 sementes de cenoura. As plantas novas são desenhadas por código em `Assets/Scripts/Farm/CropDatabase.cs`.
-- **Inventário e moedas:** venda cenouras (5), peixes (8) e madeira (2) no inventário.
+- **Inventário e moedas:** 24 slots com pilhas de até 99. Arraste um item para outro slot para organizar (no controle, use o botão **Mover**). Clique num item para comer, vender ou escolher a semente de plantio; passe o mouse para ver a descrição. Peixe vale 8, madeira 2 e cada colheita o preço da tabela acima. Com o inventário cheio, os itens ficam no chão.
+- **Itens:** cada item é um `ItemData` (`Assets/Scripts/Items`). Os básicos são criados por código em `ItemDatabase.cs`. Para criar um item pelo Editor, use **Create > Monterra > Item** e salve em `Assets/Resources/Items`; um asset com o mesmo `id` substitui o básico.
 - **Salvamento:** automático a cada novo dia e ao fechar o jogo; carrega sozinho ao abrir. Para recomeçar, use o menu **Monterra > Apagar save** no Editor.
 - **Esqueletos:** aparecem em lugares aleatórios dos campos, longe da vila e do jogador. De dia são até 3; à noite (20h às 6h), até 7. Quando morrem, voltam em outro lugar.
 - **Cemitério da Colina:** siga o caminho de terra para o norte, pelo portão na Muralha Velha. À noite, a maioria dos esqueletos nasce lá. Acenda as 4 lanternas com E (1 madeira cada): cada uma tira um esqueleto da noite.

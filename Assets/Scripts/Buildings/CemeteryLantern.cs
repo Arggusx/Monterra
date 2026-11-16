@@ -86,13 +86,12 @@ public class CemeteryLantern : MonoBehaviour
 
     private void TryLight()
     {
-        if (items.totalWood < woodCost)
+        if (!items.Spend(ItemIds.Wood, woodCost))
         {
             Message($"Precisa de {woodCost} madeira");
             return;
         }
 
-        items.totalWood -= woodCost;
         SetLit(true);
 
         if (AllLit)

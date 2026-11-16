@@ -10,13 +10,20 @@ public class Fish : MonoBehaviour
         {
             // Aumenta a quantidade de peixes do jogador
             PlayerItems items = collision.GetComponent<PlayerItems>();
-            if (items != null)
+            if (items == null)
             {
-                items.fishes++;
+                return;
             }
 
-            // Destroi esse objeto de peixe
-            Destroy(gameObject);
+            // Guarda no inventário; se não couber, o peixe fica no chão
+            if (items.Add(ItemIds.Fish))
+            {
+                Destroy(gameObject);
+            }
+            else if (DayNightCycle.Instance != null)
+            {
+                DayNightCycle.Instance.ShowMessage("Inventario cheio", 1.5f);
+            }
         }
     }
 }

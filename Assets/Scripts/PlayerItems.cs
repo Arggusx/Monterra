@@ -1,80 +1,109 @@
-﻿using System.Collections; // Biblioteca para uso de coleções (como corrotinas)
-using System.Collections.Generic; // Biblioteca para listas e dicionários genéricos
-using UnityEngine; // Biblioteca principal da Unity
+﻿using UnityEngine; // Biblioteca principal da Unity
 
+// Tudo o que o jogador carrega. Os itens (madeira, peixe, colheita, sementes) ficam no Inventory,
+// em slots com pilhas. Moedas, água do balde e XP continuam aqui porque não são itens.
 public class PlayerItems : MonoBehaviour
 {
-
     [Header("Amounts")]
-    // Armazenam as quantidades de cada recuso coletado
-    public int totalWood; // Armazena a quantidade total de madeira coletada
-    public int carrots; // Armazena a quantidade de cenouras coletada
     public float currentWater; // Armazena a quantidade atual de água coletada
-    public int fishes; // Armazena a quantidade de peixes pescados
-    public int coins; // Moedas ganhas vendendo itens no inventário
+    public int coins; // Moedas ganhas vendendo itens
 
     public int currentLevel = 0;
     public int currentXP;
 
     [Header("Limits")]
-    // Limitadores de recursos encapsulados
     public float waterLimit = 50;
+    // Só definem quando as barras do HUD ficam cheias. O limite de verdade é o espaço do inventário.
     public float woodLimit = 5;
     public float carrotLimit = 10;
     public float fishesLimit = 5f;
 
     public int xpLimit = 2;
 
-    [Header("Sementes e colheita")]
-    // Índices de CropDatabase.All. A cenoura colhida continua em 'carrots' (HUD e comer).
-    public int[] seeds = new int[CropDatabase.Count];
-    public int[] harvest = new int[CropDatabase.Count];
-    public int selectedSeed; // Semente que vai ser plantada ao apertar E num buraco
-    public int harvestLimit = 20; // Limite de cada planta (menos cenoura, que usa carrotLimit)
+    [Header("Sementes")]
+    public int selectedSeed; // Índice em CropDatabase.All: semente que vai ser plantada ao apertar E num buraco
     public int startCarrotSeeds = 5; // Jogo novo começa com algumas sementes de cenoura
+
+    private Inventory inventory;
+
+    // Criado na primeira vez que alguém pede, para não depender da ordem dos Awake
+    public Inventory Inventory => inventory ??= new Inventory();
+
+    // Atalhos de leitura usados pelo HUD
+    public int totalWood => Count(ItemIds.Wood);
+    public int carrots => Count(ItemIds.Crop(CropDatabase.Carrot));
+    public int fishes => Count(ItemIds.Fish);
 
     private void Awake()
     {
-        EnsureArrays();
-        if (seeds[CropDatabase.Carrot] == 0)
-        {
-            seeds[CropDatabase.Carrot] = startCarrotSeeds;
-        }
-    }
-
-    // Garante o tamanho certo (saves antigos não tinham sementes; plantas novas podem ser adicionadas)
-    public void EnsureArrays()
-    {
-        if (seeds == null || seeds.Length != CropDatabase.Count) System.Array.Resize(ref seeds, CropDatabase.Count);
-        if (harvest == null || harvest.Length != CropDatabase.Count) System.Array.Resize(ref harvest, CropDatabase.Count);
         selectedSeed = Mathf.Clamp(selectedSeed, 0, CropDatabase.Count - 1);
-    }
-
-    public int GetHarvest(int crop) => crop == CropDatabase.Carrot ? carrots : harvest[crop];
-
-    // Guarda uma unidade colhida; retorna false se a bolsa daquela planta estiver cheia
-    public bool AddHarvest(int crop)
-    {
-        if (crop == CropDatabase.Carrot)
+        if (SeedCount(CropDatabase.Carrot) == 0)
         {
-            if (carrots >= carrotLimit) return false;
-            carrots++;
-            return true;
+            AddSeed(CropDatabase.Carrot, startCarrotSeeds);
         }
-        if (harvest[crop] >= harvestLimit) return false;
-        harvest[crop]++;
-        return true;
     }
 
-    // Vende tudo o que foi colhido, menos as cenouras (que servem de comida). Retorna as moedas ganhas.
+    #region Itens
+
+    public int Count(string id) => Inventory.Count(id);
+
+    // Guarda o item; retorna false (sem guardar nada) se não couber tudo
+    public bool Add(string id, int amount = 1) => Inventory.TryAdd(id, amount);
+
+    // Gasta o item; retorna false (sem gastar nada) se não tiver o bastante
+    public bool Spend(string id, int amount = 1) => Inventory.TryRemove(id, amount);
+
+    // Vende unidades do slot clicado no inventário. Retorna as moedas ganhas.
+    public int SellSlot(int slot, int amount)
+    {
+        ItemData item = ItemDatabase.Get(Inventory.GetSlot(slot).id);
+        if (item == null || !item.IsSellable) return 0;
+
+        int earned = Inventory.RemoveAt(slot, amount) * item.sellPrice;
+        coins += earned;
+        return earned;
+    }
+
+    #endregion
+
+    #region Sementes e colheita
+
+    public int SeedCount(int crop) => Count(ItemIds.Seed(crop));
+
+    public bool AddSeed(int crop, int amount = 1) => Add(ItemIds.Seed(crop), amount);
+
+    public bool UseSeed(int crop) => Spend(ItemIds.Seed(crop));
+
+    public int GetHarvest(int crop) => Count(ItemIds.Crop(crop));
+
+    // Guarda uma unidade colhida; retorna false se o inventário estiver cheio
+    public bool AddHarvest(int crop) => Add(ItemIds.Crop(crop));
+
+    // Quanto vale a colheita que SellAllHarvest venderia
+    public int HarvestValue()
+    {
+        int total = 0;
+        for (int i = 0; i < Inventory.Size; i++)
+        {
+            ItemStack s = Inventory.GetSlot(i);
+            ItemData item = ItemDatabase.Get(s.id);
+            if (item != null && item.category == ItemCategory.Crop) total += s.count * item.sellPrice;
+        }
+        return total;
+    }
+
+    // Vende tudo o que foi colhido, menos o que é comida (cenoura). Retorna as moedas ganhas.
     public int SellAllHarvest()
     {
         int earned = 0;
-        for (int i = 0; i < harvest.Length; i++)
+        for (int i = 0; i < Inventory.Size; i++)
         {
-            if (i == CropDatabase.Carrot) continue;
-            earned += harvest[i] * CropDatabase.All[i].sellPrice;
-            harvest[i] = 0;
+            ItemStack s = Inventory.GetSlot(i);
+            ItemData item = ItemDatabase.Get(s.id);
+            if (item != null && item.category == ItemCategory.Crop)
+            {
+                earned += Inventory.RemoveAt(i, s.count) * item.sellPrice;
+            }
         }
         coins += earned;
         return earned;
@@ -86,7 +115,7 @@ public class PlayerItems : MonoBehaviour
         for (int step = 1; step <= CropDatabase.Count; step++)
         {
             int i = (selectedSeed + step) % CropDatabase.Count;
-            if (seeds[i] > 0 || step == CropDatabase.Count)
+            if (SeedCount(i) > 0 || step == CropDatabase.Count)
             {
                 selectedSeed = i;
                 return;
@@ -94,7 +123,9 @@ public class PlayerItems : MonoBehaviour
         }
     }
 
-    public string SelectedSeedLabel => $"{CropDatabase.All[selectedSeed].name} ({seeds[selectedSeed]})";
+    public string SelectedSeedLabel => $"{CropDatabase.All[selectedSeed].name} ({SeedCount(selectedSeed)})";
+
+    #endregion
 
     public void WaterLimit(float water) // Método para limitar a quantidade de água ao recarregar
     {

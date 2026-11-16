@@ -138,8 +138,12 @@ public class ShopUI : MonoBehaviour
             Message("Moedas insuficientes");
             return;
         }
+        if (!items.AddSeed(crop))
+        {
+            Message("Inventario cheio");
+            return;
+        }
         items.coins -= price;
-        items.seeds[crop]++;
         items.selectedSeed = crop; // Já deixa escolhida para plantar
     }
 
@@ -151,17 +155,13 @@ public class ShopUI : MonoBehaviour
 
     private void Refresh()
     {
-        int pending = 0;
-        for (int i = 0; i < CropDatabase.Count; i++)
-        {
-            if (i != CropDatabase.Carrot) pending += items.harvest[i] * CropDatabase.All[i].sellPrice;
-        }
+        int pending = items.HarvestValue();
         infoText.text = $"Moedas: {items.coins}     Colheita para vender: {pending} moedas";
 
         for (int i = 0; i < seedLabels.Count; i++)
         {
             CropDatabase.Crop c = CropDatabase.All[i];
-            seedLabels[i].text = $"{c.name}  -  {c.seedPrice} moeda{(c.seedPrice > 1 ? "s" : "")}   (tem {items.seeds[i]}, vende por {c.sellPrice}, {c.growthHours:0.#}h)";
+            seedLabels[i].text = $"{c.name}  -  {c.seedPrice} moeda{(c.seedPrice > 1 ? "s" : "")}   (tem {items.SeedCount(i)}, vende por {c.sellPrice}, {c.growthHours:0.#}h)";
         }
     }
 

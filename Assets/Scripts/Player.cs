@@ -42,9 +42,7 @@ public class Player : MonoBehaviour
 
     public bool isDead;
 
-    public float valueHungryPerFish = 5f;
     public float valueHungry = 10f;
-    public float valueHungryPerCarrot = 3f; // Quanto uma cenoura recupera de fome
 
     [Header("Water")]
     public float waterUsePerSecond = 6f; // Água gasta por segundo ao regar (antes era 0.1 por frame = 6/s a 60 FPS)
@@ -362,27 +360,55 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void foodFish()
+    // Atalhos de teclado (F e G). Quanto cada comida recupera está no ItemData do item.
+    public void foodFish() => EatFirst(ItemIds.Fish);
+
+    public void foodCarrot() => EatFirst(ItemIds.Crop(CropDatabase.Carrot));
+
+    // Só deixa comer se o item recupera algo que não está cheio (não desperdiça comida)
+    public bool CanEat(ItemData item)
     {
-        if (playerItems.fishes > 0 && currentHunger < maxHunger)
+        if (item == null || !item.IsEdible || isDead)
         {
-            playerItems.fishes--;
-            Comer(valueHungryPerFish);
-            Debug.Log("Comeu um peixe! Peixes restantes: " + playerItems.fishes);
+            return false;
         }
-        else
-        {
-            Debug.Log("Não pode comer peixe (sem peixe ou fome cheia).");
-        }
+
+        return (item.hungerRestore > 0f && currentHunger < maxHunger)
+            || (item.healthRestore > 0f && currentHealthPlayer < totalHealthPlayer)
+            || (item.staminaRestore > 0f && currentStamina < maxStamina);
     }
 
-    public void foodCarrot()
+    // Come uma unidade do item, tirando de qualquer slot do inventário
+    public bool EatFirst(string itemId)
     {
-        if (playerItems.carrots > 0 && currentHunger < maxHunger)
+        ItemData item = ItemDatabase.Get(itemId);
+        if (!CanEat(item) || !playerItems.Spend(itemId))
         {
-            playerItems.carrots--;
-            Comer(valueHungryPerCarrot);
+            return false;
         }
+
+        ApplyFood(item);
+        return true;
+    }
+
+    // Come uma unidade do slot clicado no inventário
+    public bool EatFromSlot(int slot)
+    {
+        ItemData item = ItemDatabase.Get(playerItems.Inventory.GetSlot(slot).id);
+        if (!CanEat(item) || playerItems.Inventory.RemoveAt(slot, 1) == 0)
+        {
+            return false;
+        }
+
+        ApplyFood(item);
+        return true;
+    }
+
+    private void ApplyFood(ItemData item)
+    {
+        Comer(item.hungerRestore);
+        currentHealthPlayer = Mathf.Clamp(currentHealthPlayer + item.healthRestore, 0f, totalHealthPlayer);
+        currentStamina = Mathf.Clamp(currentStamina + item.staminaRestore, 0f, maxStamina);
     }
 
     void HandleHunger()

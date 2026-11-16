@@ -8,7 +8,9 @@ public static class CropDatabase
 {
     public class Crop
     {
+        public string id;        // Estável: vira o id do item colhido ("carrot") e da semente ("seed_carrot")
         public string name;      // Sem acento: a fonte pixel art não tem
+        public Color32 seedTint; // Cor do saquinho de semente no inventário
         public int seedPrice;    // Quanto a semente custa na loja
         public int sellPrice;    // Quanto vale cada unidade colhida
         public float growthHours; // Horas do jogo para crescer depois de regada
@@ -16,12 +18,12 @@ public static class CropDatabase
         internal Sprite sprite;
     }
 
-    public const int Carrot = 0; // A cenoura continua guardada em PlayerItems.carrots (HUD e comer)
+    public const int Carrot = 0; // A cenoura é a única colheita que também é comida
 
     public static readonly Crop[] All =
     {
-        new Crop { name = "Cenoura", seedPrice = 2, sellPrice = 5, growthHours = 2f, art = null },
-        new Crop { name = "Trigo", seedPrice = 1, sellPrice = 3, growthHours = 1.5f, art = new[]
+        new Crop { id = "carrot", name = "Cenoura", seedTint = new Color32(247, 118, 34, 255), seedPrice = 2, sellPrice = 5, growthHours = 2f, art = null },
+        new Crop { id = "wheat", name = "Trigo", seedTint = new Color32(254, 231, 97, 255), seedPrice = 1, sellPrice = 3, growthHours = 1.5f, art = new[]
         {
             "................",
             "....y...y...y...",
@@ -40,7 +42,7 @@ public static class CropDatabase
             "................",
             "................"
         }},
-        new Crop { name = "Repolho", seedPrice = 4, sellPrice = 10, growthHours = 4f, art = new[]
+        new Crop { id = "cabbage", name = "Repolho", seedTint = new Color32(99, 199, 77, 255), seedPrice = 4, sellPrice = 10, growthHours = 4f, art = new[]
         {
             "................",
             "................",
@@ -59,7 +61,7 @@ public static class CropDatabase
             "................",
             "................"
         }},
-        new Crop { name = "Morango", seedPrice = 6, sellPrice = 15, growthHours = 6f, art = new[]
+        new Crop { id = "strawberry", name = "Morango", seedTint = new Color32(228, 59, 68, 255), seedPrice = 6, sellPrice = 15, growthHours = 6f, art = new[]
         {
             "................",
             "................",
@@ -78,7 +80,7 @@ public static class CropDatabase
             "................",
             "................"
         }},
-        new Crop { name = "Abobora", seedPrice = 10, sellPrice = 28, growthHours = 10f, art = new[]
+        new Crop { id = "pumpkin", name = "Abobora", seedTint = new Color32(254, 174, 52, 255), seedPrice = 10, sellPrice = 28, growthHours = 10f, art = new[]
         {
             "................",
             "................",
@@ -165,9 +167,12 @@ public static class CropDatabase
         { 'R', new Color32(162, 38, 51, 255) },  { 'w', new Color32(255, 255, 255, 255) },
         { 'b', new Color32(184, 111, 80, 255) }, { 'B', new Color32(116, 63, 57, 255) },
         { 'k', new Color32(24, 20, 37, 255) },
+        { 'c', new Color32(0, 153, 219, 255) },  { 'C', new Color32(18, 78, 137, 255) },
+        { 's', new Color32(139, 155, 180, 255) }, { 'S', new Color32(90, 105, 136, 255) },
     };
 
-    private static Sprite Build(string[] rows, string name)
+    // Também usado pelo ItemDatabase para desenhar os ícones dos itens
+    public static Sprite Build(string[] rows, string name)
     {
         const int size = 16;
         Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);

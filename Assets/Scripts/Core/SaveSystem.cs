@@ -9,7 +9,11 @@ using UnityEngine.SceneManagement;
 [Serializable]
 public class SaveData
 {
-    public int version = 1;
+    public const int CurrentVersion = 2;
+
+    // 1 = itens em contadores fixos (wood, carrots, fishes, seeds[], harvest[])
+    // 2 = itens em slots (inventory)
+    public int version = CurrentVersion;
     public string scene;
     public string savedAt;
 
@@ -19,7 +23,8 @@ public class SaveData
     public int handlingObj;
 
     // Itens
-    public int wood, carrots, fishes, coins;
+    public List<ItemStack> inventory = new List<ItemStack>(); // Slots do inventário, na ordem
+    public int coins;
     public float water;
     public int level, xp, xpLimit;
 
@@ -32,11 +37,13 @@ public class SaveData
     public List<FarmSlotData> farmSlots = new List<FarmSlotData>();
     public List<string> litLanterns = new List<string>(); // Lanternas acesas do Cemiterio da Colina
 
-    // Sementes e colheita (índices de CropDatabase.All)
+    public int selectedSeed; // Índice em CropDatabase.All
+    public bool shopUnlocked;
+
+    // Só para LER saves da versão 1 (ver SaveSystem.MigrateV1). Não são mais gravados.
+    public int wood, carrots, fishes;
     public int[] seeds;
     public int[] harvest;
-    public int selectedSeed;
-    public bool shopUnlocked;
 }
 
 [Serializable]
@@ -128,14 +135,10 @@ public class SaveSystem : MonoBehaviour
             stamina = player.currentStamina,
             hunger = player.currentHunger,
             handlingObj = player.handlingObj,
-            wood = items.totalWood,
-            carrots = items.carrots,
-            fishes = items.fishes,
+            inventory = items.Inventory.ToSaveList(),
             coins = items.coins,
             water = items.currentWater,
             level = items.currentLevel,
-            seeds = (int[])items.seeds.Clone(),
-            harvest = (int[])items.harvest.Clone(),
             selectedSeed = items.selectedSeed,
             shopUnlocked = ShopUI.Instance != null && ShopUI.Instance.Unlocked,
             xp = items.currentXP,
@@ -202,19 +205,22 @@ public class SaveSystem : MonoBehaviour
         }
 
         // Itens e status valem em qualquer cena
-        items.totalWood = data.wood;
-        items.carrots = data.carrots;
-        items.fishes = data.fishes;
+        // Arquivo sem slots mas com contadores antigos também é tratado como versão 1
+        bool legacy = data.version < 2
+            || (data.inventory.Count == 0 && (data.wood > 0 || data.carrots > 0 || data.fishes > 0 || (data.seeds != null && data.seeds.Length > 0)));
+
+        if (!legacy)
+        {
+            items.Inventory.LoadFrom(data.inventory);
+        }
+        else
+        {
+            MigrateV1(data, items);
+        }
+        items.selectedSeed = Mathf.Clamp(data.selectedSeed, 0, CropDatabase.Count - 1);
         items.coins = data.coins;
         items.currentWater = data.water;
         items.currentLevel = data.level;
-        if (data.seeds != null && data.seeds.Length > 0) // Saves antigos não têm sementes: fica o padrão
-        {
-            items.seeds = (int[])data.seeds.Clone();
-            items.harvest = data.harvest != null ? (int[])data.harvest.Clone() : new int[CropDatabase.Count];
-            items.selectedSeed = data.selectedSeed;
-        }
-        items.EnsureArrays();
         if (ShopUI.Instance != null)
         {
             ShopUI.Instance.Unlocked = data.shopUnlocked;
@@ -277,6 +283,33 @@ public class SaveSystem : MonoBehaviour
                 slot.SetState(s);
             }
         }
+    }
+
+    // Converte os contadores do save antigo em itens do inventário novo
+    private static void MigrateV1(SaveData data, PlayerItems items)
+    {
+        Inventory inv = items.Inventory;
+        bool hadSeeds = data.seeds != null && data.seeds.Length > 0;
+        int startSeeds = inv.Count(ItemIds.Seed(CropDatabase.Carrot));
+
+        inv.Clear();
+        inv.Add(ItemIds.Wood, data.wood);
+        inv.Add(ItemIds.Fish, data.fishes);
+        inv.Add(ItemIds.Crop(CropDatabase.Carrot), data.carrots);
+
+        for (int i = 0; i < CropDatabase.Count; i++)
+        {
+            if (hadSeeds && i < data.seeds.Length) inv.Add(ItemIds.Seed(i), data.seeds[i]);
+            // A cenoura colhida ficava em 'carrots', não em harvest[]
+            if (i != CropDatabase.Carrot && data.harvest != null && i < data.harvest.Length) inv.Add(ItemIds.Crop(i), data.harvest[i]);
+        }
+
+        if (!hadSeeds) // Save de antes da loja: mantém as sementes iniciais
+        {
+            inv.Add(ItemIds.Seed(CropDatabase.Carrot), startSeeds);
+        }
+
+        Debug.Log("Save da versao 1 convertido para o inventario em slots.");
     }
 
     public static void DeleteSave()

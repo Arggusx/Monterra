@@ -134,13 +134,12 @@ public class SlotFarm : MonoBehaviour
     {
         int seed = playerItems.selectedSeed;
         string name = CropDatabase.All[seed].name;
-        if (playerItems.seeds[seed] <= 0)
+        if (!playerItems.UseSeed(seed))
         {
             Message($"Sem sementes de {name} (V troca)");
             return;
         }
 
-        playerItems.seeds[seed]--;
         seeded = true;
         crop = seed;
         growth = 0f;
@@ -153,7 +152,7 @@ public class SlotFarm : MonoBehaviour
     {
         if (!playerItems.AddHarvest(crop))
         {
-            Message($"Bolsa de {CropDatabase.All[crop].name} cheia - venda ou coma");
+            Message("Inventario cheio - venda ou coma algo");
             return;
         }
 

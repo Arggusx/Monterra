@@ -36,7 +36,7 @@ public class House : MonoBehaviour
     {
         // Inicializa a construção se: detectar player na área de colisão e apertar tecla 'E' e a
         // quantidade de madeira que coletei for maior ou igual a quantidade setada
-        if (detectingPlayer && !isBegining && !isBuilt && GameInput.InteractPressed && playerItems.totalWood >= woodAmount)
+        if (detectingPlayer && !isBegining && !isBuilt && GameInput.InteractPressed && playerItems.Spend(ItemIds.Wood, woodAmount))
         {
             isBegining = true;
             timeCount = 0f;
@@ -45,7 +45,6 @@ public class House : MonoBehaviour
             player.transform.position = point.position; // Move o player para um objeto vazio transparente
             Debug.Log("Construindo!!");
             player.isPaused = true; // /Não pode se mover enquanto estiver construindo
-            playerItems.totalWood -= woodAmount;
         }
         if (isBegining)
         {

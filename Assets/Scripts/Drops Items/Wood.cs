@@ -28,13 +28,20 @@ public class Wood : MonoBehaviour
         {
             // Aumenta a quantidade de madeira do jogador
             PlayerItems items = collision.GetComponent<PlayerItems>();
-            if (items != null)
+            if (items == null)
             {
-                items.totalWood++;
+                return;
             }
 
-            // Destroi esse objeto de madeira
-            Destroy(gameObject);
+            // Guarda no inventário; se não couber, a madeira fica no chão
+            if (items.Add(ItemIds.Wood))
+            {
+                Destroy(gameObject);
+            }
+            else if (DayNightCycle.Instance != null)
+            {
+                DayNightCycle.Instance.ShowMessage("Inventario cheio", 1.5f);
+            }
         }
     }
 }
