@@ -36,6 +36,13 @@ public class Player : MonoBehaviour
     public float staminaRegenPerSecond = 3f;
     public float healthRegenPerSecond = 1f;
 
+    [Header("Stamina das ferramentas (fração da stamina máxima por segundo de uso)")]
+    [Range(0f, 1f)] public float cutStaminaPerSecond = 0.12f;    // Machado: ~8 s cortando sem parar
+    [Range(0f, 1f)] public float digStaminaPerSecond = 0.12f;    // Pá
+    [Range(0f, 1f)] public float attackStaminaPerSecond = 0.18f; // Espada: ~5,5 s atacando sem parar
+    [Tooltip("Fração mínima de stamina para COMEÇAR a cortar, cavar ou atacar")]
+    [Range(0f, 1f)] public float minStaminaToAct = 0.1f;
+
     [Header("Move")]
     public bool isRun = false;
     public bool isMoving = false;
@@ -265,7 +272,7 @@ public class Player : MonoBehaviour
     {
         if (handlingObj == 3) // Se estiver com espada
         {
-            if (GameInput.ActionPressed) // Se usar a ferramenta
+            if (GameInput.ActionPressed && CanStartAction()) // Se usar a ferramenta
             {
                 speed = 0f; // Para de se mover
                 _isRunning = false; // Para de correr
@@ -275,6 +282,10 @@ public class Player : MonoBehaviour
             {
                 speed = initialSpeed; // Volta a se mover
                 _isAttacking = false;
+            }
+            if (_isAttacking && !SpendActionStamina(attackStaminaPerSecond))
+            {
+                _isAttacking = false; // Ficou sem fôlego no meio do golpe
             }
         }
         else
@@ -286,7 +297,7 @@ public class Player : MonoBehaviour
     {
         if (handlingObj == 0) // Se estiver com ferramenta de corte
         {
-            if (GameInput.ActionPressed) // Se usar a ferramenta
+            if (GameInput.ActionPressed && CanStartAction()) // Se usar a ferramenta
             {
                 _isCutting = true;
                 speed = 0f; // Para de se mover
@@ -296,6 +307,10 @@ public class Player : MonoBehaviour
             {
                 _isCutting = false; // Não corta
                 speed = initialSpeed; // Volta a se mover
+            }
+            if (_isCutting && !SpendActionStamina(cutStaminaPerSecond))
+            {
+                _isCutting = false; // Ficou sem fôlego
             }
         }
         else
@@ -321,7 +336,7 @@ public class Player : MonoBehaviour
     {
         if (handlingObj == 1) // Se estiver com a pá
         {
-            if (GameInput.ActionPressed) // Se usar a ferramenta
+            if (GameInput.ActionPressed && CanStartAction()) // Se usar a ferramenta
             {
                 isDigging = true; // Começa a cavar
                 speed = 0f; // Para de se mover
@@ -330,6 +345,10 @@ public class Player : MonoBehaviour
             {
                 isDigging = false; // Para de cavar
                 speed = initialSpeed; // Volta a se mover
+            }
+            if (isDigging && !SpendActionStamina(digStaminaPerSecond))
+            {
+                isDigging = false; // Ficou sem fôlego
             }
         }
         else
@@ -429,6 +448,31 @@ public class Player : MonoBehaviour
         }
     }
 
+    // Cortando, cavando ou atacando (regar não cansa)
+    private bool IsWorking => _isCutting || _isDigging || _isAttacking;
+
+    // Precisa de um mínimo de fôlego para começar; sem isso avisa o jogador
+    private bool CanStartAction()
+    {
+        if (currentStamina >= maxStamina * minStaminaToAct)
+        {
+            return true;
+        }
+
+        if (DayNightCycle.Instance != null)
+        {
+            DayNightCycle.Instance.ShowMessage("Sem folego - descanse um pouco", 1.5f);
+        }
+        return false;
+    }
+
+    // Gasta stamina enquanto a ferramenta é usada. Retorna false quando ela acaba.
+    private bool SpendActionStamina(float fractionPerSecond)
+    {
+        currentStamina = Mathf.Max(0f, currentStamina - maxStamina * fractionPerSecond * Time.deltaTime);
+        return currentStamina > 0f;
+    }
+
     void HandleStamina()
     {
         bool wantsToRun = GameInput.RunHeld;
@@ -437,9 +481,9 @@ public class Player : MonoBehaviour
         {
             currentStamina -= staminaDrainPerSecond * Time.deltaTime;
         }
-        else if (!isRunning && !wantsToRun)
+        else if (!isRunning && !wantsToRun && !IsWorking)
         {
-            currentStamina += staminaRegenPerSecond * Time.deltaTime;
+            currentStamina += staminaRegenPerSecond * Time.deltaTime; // Só recupera descansando
         }
 
         currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);

@@ -4593,7 +4593,7 @@ MonoBehaviour:
   currentStamina: 0
   currentHunger: 0
   totalHealthPlayer: 20
-  maxStamina: 5
+  maxStamina: 50
   maxHunger: 50
   hungerDrainPerSecond: 0.3
   staminaDrainPerSecond: 6
